@@ -513,7 +513,12 @@ if __name__ == "__main__":
     log.info('=== Iniciando aplicação ===')
     app = QApplication(sys.argv)
     window = MainWindow()
+    window.setMinimumSize(800, 600)
     window.show()
+    screen = app.primaryScreen().availableGeometry()
+    window.move(
+        screen.center() - window.rect().center()
+    )
     exit_code = app.exec()
     log.info('=== Aplicação encerrada (código %d) ===', exit_code)
     sys.exit(exit_code)
