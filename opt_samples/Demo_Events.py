@@ -1,0 +1,168 @@
+# -- coding: utf-8 --
+
+import sys
+import ctypes
+import threading
+import time
+from SciCam_class import *
+
+m_currentCam = SciCamera()
+g_bExit = False
+#ch:打印相机信息 | en:Print Camera Info
+def PrintDeviceInfo(info:SCI_DEVICE_INFO):
+
+     nIp1 = (info.info.gigeInfo.ip & 0x000000ff); #ch: 第一位 | en:the first number
+     nIp2 = ((info.info.gigeInfo.ip & 0x0000ff00) >> 8); #ch: 第二位 | en:the second number
+     nIp3 = ((info.info.gigeInfo.ip & 0x00ff0000) >> 16); #ch: 第三位 | en:the third number
+     nIp4 = ((info.info.gigeInfo.ip & 0xff000000) >> 24); #ch: 第四位 | en:the fourth number
+     manufactureName = ''
+     for per in info.info.gigeInfo.manufactureName:
+          if per == 0:
+               break
+          manufactureName = manufactureName + chr(per)
+     serialNumber = ''
+     for per in info.info.gigeInfo.serialNumber:
+          if per == 0:
+               break
+          serialNumber = serialNumber + chr(per)
+     modelname = ''
+     for per in info.info.gigeInfo.modelName:
+          if per == 0:
+               break
+          modelname = modelname + chr(per)
+     #ch: 打印当前相机ip, 制造商,序列号和型号 | en: print current ip, ManufactureName, SN,ModelName
+     print("CurrentIp: {}.{}.{}.{}".format(nIp1, nIp2, nIp3, nIp4))
+     print("ManufactureName: %s"  %(manufactureName))
+     print("Serial Number: %s"  %(serialNumber))
+     print("ModelName: %s" % (modelname))
+
+#ch:事件回调 | en:Event Callback interface
+def EventCallBack(pEventInfo):
+     if pEventInfo:
+          event_info = pEventInfo.contents
+          data_addr = event_info.data
+          if data_addr is None:
+               data_str = "NULL"
+          else:
+               data_str = f"0x{ctypes.addressof(ctypes.cast(data_addr, ctypes.c_char_p)):x}"
+
+          print(f"EventID[{event_info.id}], "
+                f"EventTick[{event_info.tick}], "
+                f"EventData[{data_str}], "
+                f"EventDatalen[{event_info.len}]")
+
+EventsCallBack = CFUNCTYPE(None, PSCI_CAM_EVENT)
+CALL_BACK_FUN = EventsCallBack(EventCallBack)
+
+#ch:线程工作函数 | en:Thread Work function
+def WorkThread():
+     payloadAttribute = SCI_CAM_PAYLOAD_ATTRIBUTE()
+     ppayload = ctypes.c_void_p()
+     while True:
+
+          if not m_currentCam.SciCam_IsDeviceOpen():
+               return
+          #ch:采集一帧图像 | en: Grab One Image
+          nRet = m_currentCam.SciCam_Grab(ppayload)
+          if nRet != SCI_CAMERA_OK:
+               print("Get payload fail! nRet [%d]" %(nRet))
+               continue
+          else:
+               print("Get payload Sucees! nRet [%d]" %(nRet))
+
+          #ch:获取图像信息 | en: Get Iamge Attribute
+          nRet = SciCam_Payload_GetAttribute(ppayload, payloadAttribute)
+          if nRet == SCI_CAMERA_OK:
+               print("Get One Frame: width[%d], height[%d], frameID[%d]"
+                    % (payloadAttribute.imgAttr.width, payloadAttribute.imgAttr.height, payloadAttribute.frameID))
+               m_currentCam.SciCam_FreePayload(ppayload)
+          else:
+               print("Get Payload Attribute fail! nRet [%d]" %(nRet))
+
+          if(g_bExit):
+               break
+
+if __name__ == "__main__":
+     devInfos = SCI_DEVICE_INFO_LIST()
+
+     while True:
+          #ch:枚举设备 | en:Enum device
+          nRet = SciCamera.SciCam_DiscoveryDevices(devInfos, SciCamTLType.SciCam_TLType_Gige)
+          if nRet != SCI_CAMERA_OK:
+               print("Enum Devices fail! nRet [%d]" % (nRet))
+               break;
+
+          if devInfos.count == 0:
+               print("Find No Devices!")
+               break;
+
+          for ii in range(0, devInfos.count):
+               print(' Device[%d]: ' % (ii))
+               PrintDeviceInfo(devInfos.pDevInfo[ii])
+
+          index = int(input("Please Input camera index(0-%d):" % (devInfos.count - 1)))
+          if index >devInfos.count - 1:
+               print("Input error!")
+               break
+          #ch:选择设备并创建对象 | en:Select device and create Object
+          nRet = m_currentCam.SciCam_CreateDevice(devInfos.pDevInfo[index])
+          if nRet != SCI_CAMERA_OK:
+               print("Create Handle fail! nRet [%d]" % (nRet))
+               break
+
+          #ch:打开设备 | en:Open device
+          nRet = m_currentCam.SciCam_OpenDevice()
+          if nRet != SCI_CAMERA_OK:
+               print("Open Device fail! nRet [%d]" % (nRet))
+               break
+
+          #ch:设置触发模式为off | en:Set trigger mode as off
+          nRet = m_currentCam.SciCam_SetEnumValueByStringEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,"TriggerMode" , "Off")
+          if nRet != SCI_CAMERA_OK:
+               print("Set Trigger Mode fail! nRet [%d]" % (nRet))
+               break
+
+
+
+          #ch:开始取流 | en:Start grab image
+          nRet = m_currentCam.SciCam_StartGrabbing()
+          if nRet != SCI_CAMERA_OK:
+               print("Start Grabbing fail! nRet [%d]" % (nRet))
+               break
+
+          # ch:注册事件回调 | en:Register event callback
+          nRet = m_currentCam.SciCam_RegisterEventCallback(CALL_BACK_FUN, None)
+          if nRet != SCI_CAMERA_OK:
+               print("Register Event CallBack fail! nRet [%d]" % (nRet))
+               break
+          thread = threading.Thread(target=WorkThread)
+          thread.start()
+
+          input("Press AnyKey to Stop...\n")
+          g_bExit = True
+          if thread.is_alive():
+               thread.join(timeout=2.0)
+
+          #ch:停止取流 | en:Stop grab image
+          nRet = m_currentCam.SciCam_StopGrabbing()
+          if nRet != SCI_CAMERA_OK:
+               print("Stop Grab fail! nRet [%d]" % (nRet))
+               break
+
+          #ch:关闭设备 | en:Close device
+          nRet = m_currentCam.SciCam_CloseDevice()
+          if nRet != SCI_CAMERA_OK:
+               print("Close Device fail! nRet [%d]" % (nRet))
+               break
+
+          #ch:销毁句柄 | en:Destroy handle
+          nRet = m_currentCam.SciCam_DeleteDevice()
+          if nRet != SCI_CAMERA_OK:
+               print("Delete Device fail! nRet [%d]" % (nRet))
+               break
+          break
+
+     if m_currentCam:
+          m_currentCam.SciCam_DeleteDevice()
+
+     input("Press AnyKey to Exit...")
