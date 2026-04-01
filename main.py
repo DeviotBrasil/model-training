@@ -221,7 +221,7 @@ class MainWindow(Window, Form):
         self.sliderGamma.valueChanged.connect(self._on_gamma_changed)
 
         if not SDK_AVAILABLE:
-            log.error('SDK indisponível — controles desabilitados: %s', SDK_ERROR)
+            log.warning('SDK indisponível — controles desabilitados: %s', SDK_ERROR)
             self._disable_sdk_controls()
             return
 
@@ -498,7 +498,7 @@ class MainWindow(Window, Form):
         log.info('Encerrando aplicação')
         self._stop_camera_thread()
         try:
-            if self._camera.SciCam_IsDeviceOpen():
+            if self._camera and self._camera.SciCam_IsDeviceOpen():
                 self._camera.SciCam_StopGrabbing()
                 self._camera.SciCam_CloseDevice()
                 self._camera.SciCam_DeleteDevice()
