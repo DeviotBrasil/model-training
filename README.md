@@ -14,8 +14,8 @@ Aplicativo desktop com interface gráfica (PyQt6) para captura e visualização 
 
 ## Requisitos
 
-- Python 3.12.2
-- Qt6 (necessário no Linux)
+- Python 3.12+
+- SDK SciCam instalado (bibliotecas nativas em `libs/`)
 
 ---
 
@@ -24,30 +24,49 @@ Aplicativo desktop com interface gráfica (PyQt6) para captura e visualização 
 ### Linux
 
 ```bash
-# 1. Instale as dependências do Qt6
-sudo apt update
-sudo apt install qt6-base-dev qt6-tools-dev-tools
-
-# 2. Crie e ative o ambiente virtual
+# 1. Crie e ative o ambiente virtual
 python -m venv .venv
 source .venv/bin/activate
 
-# 3. Instale as dependências Python
+# 2. Instale as dependências Python
 pip install -r requirements.txt
 ```
 
 ### Windows
 
-```bash
+```bat
+# 1. Crie e ative o ambiente virtual
 python -m venv .venv
-source .venv/Scripts/activate
+.venv\Scripts\activate
+
+# 2. Instale as dependências Python
 pip install -r requirements.txt
 ```
+
+---
 
 ## Execução
 
 ```bash
 python main.py
+```
+
+> Caso o SDK SciCam não esteja disponível, a aplicação inicializa em **modo simulação** — útil para desenvolvimento e testes da interface.
+
+---
+
+## Editor de Interface
+
+Para editar o layout `interface.ui` visualmente no Qt Designer:
+
+**Linux**
+```bash
+./.venv/bin/pyside6-designer
+```
+
+**Windows**
+```bat
+.venv\Lib\site-packages\PySide6\designer.exe
 ```
 
 ---
@@ -59,6 +78,8 @@ python main.py
 ├── main.py              # Ponto de entrada e lógica principal da UI
 ├── interface.ui         # Layout da janela principal (Qt Designer)
 ├── requirements.txt     # Dependências Python
+├── run.sh               # Script de execução (Linux)
+├── run.bat              # Script de execução (Windows)
 ├── libs/                # Bibliotecas nativas do SDK (CTI, SO/DLL)
 ├── opt_samples/         # Módulos Python do SDK SciCam e demos
 ├── logs/                # Logs da aplicação (gerados em tempo de execução)
@@ -66,7 +87,9 @@ python main.py
 └── SystemLog/           # Logs gerados pelo driver da câmera
 ```
 
-## Dependências
+---
+
+## Dependências Python
 
 | Pacote | Versão |
 |---|---|
