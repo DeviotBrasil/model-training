@@ -34,10 +34,10 @@ pip install -r requirements.txt
 
 ### Windows
 
-```bat
+```bash
 # 1. Crie e ative o ambiente virtual
 python -m venv .venv
-.venv\Scripts\activate
+source venv/bin/activate
 
 # 2. Instale as dependências Python
 pip install -r requirements.txt
@@ -65,8 +65,8 @@ Para editar o layout `interface.ui` visualmente no Qt Designer:
 ```
 
 **Windows**
-```bat
-.venv\Lib\site-packages\PySide6\designer.exe
+```bash
+./.venv/Lib/site-packages/PySide6/designer.exe
 ```
 
 ---
