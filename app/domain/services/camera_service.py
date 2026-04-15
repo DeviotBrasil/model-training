@@ -16,6 +16,10 @@ log = logging.getLogger('scicam.service')
 # Tamanho máximo seguro para pacotes GigE (bytes) — evita fragmentação de rede
 PACKET_SIZE_SAFE = 1450
 
+# Inter-packet delay padrão (nanosegundos) — espaça pacotes UDP para aliviar a NIC
+# Ajuste para cima (ex: 5000) se ainda ocorrer SCI_ERR_CAMERA_IMAGE_NOT_COMPLETE
+INTER_PACKET_DELAY_NS = 2000
+
 # Limites de exposição aplicados pela UI (em microssegundos)
 EXPOSURE_MIN = 100
 EXPOSURE_MAX = 100_000
@@ -122,7 +126,12 @@ class CameraService:
         xml = SciCamDeviceXmlType.SciCam_DeviceXml_Camera
         self._camera.SciCam_SetEnumValueByStringEx(xml, "TriggerMode", "Off")
         self._camera.SciCam_SetIntValueEx(xml, "GevSCPSPacketSize", PACKET_SIZE_SAFE)
-        log.info('TriggerMode=Off GevSCPSPacketSize=%d', PACKET_SIZE_SAFE)
+        # Inter-packet delay (ns): reduz rajadas UDP e evita SCI_ERR_CAMERA_IMAGE_NOT_COMPLETE
+        self._camera.SciCam_SetIntValueEx(xml, "GevSCPD", INTER_PACKET_DELAY_NS)
+        log.info(
+            'TriggerMode=Off GevSCPSPacketSize=%d GevSCPD=%d',
+            PACKET_SIZE_SAFE, INTER_PACKET_DELAY_NS,
+        )
         return True, "Câmera conectada com sucesso"
 
     def disconnect(self) -> None:
@@ -158,6 +167,11 @@ class CameraService:
             (True, mensagem_ok) em sucesso, (False, mensagem_erro) em falha.
         """
         from app.infrastructure.camera.sci_cam_errors import SCI_CAMERA_OK
+
+        GRAB_TIMEOUT_MS = 3000
+        self._camera.SciCam_SetGrabTimeout(GRAB_TIMEOUT_MS)
+        log.info('GrabTimeout definido para %d ms', GRAB_TIMEOUT_MS)
+
         nRet = self._camera.SciCam_StartGrabbing()
         if nRet != SCI_CAMERA_OK:
             log.error('SciCam_StartGrabbing falhou: código %d', nRet)
