@@ -1,3 +1,10 @@
+"""Janela principal da aplicação de visualização de câmera SciCam.
+
+Carrega o layout definido em interface.ui (PyQt6/Designer) e conecta os
+widgets ao CameraService e à CameraThread. Se o SDK não estiver disponível
+(libraría nativa ausente), os controles são desabilitados e uma mensagem
+orientativa é exibida no lugar da imagem.
+"""
 import logging
 from pathlib import Path
 
@@ -8,11 +15,12 @@ from PyQt6.QtGui import QImage, QPixmap
 
 from app.domain.services.camera_service import CameraParams
 
-_UI_FILE = str(Path(__file__).parent / 'interface.ui')
-Form, Window = uic.loadUiType(_UI_FILE)
+_UI_FILE = str(Path(__file__).parent / 'main_window.ui')
+Form, Window = uic.loadUiType(_UI_FILE)  # Gera as classes base a partir do arquivo .ui
 
 log = logging.getLogger('scicam.ui')
 
+# Flag global que indica se as bibliotecas nativas do SDK foram carregadas com sucesso
 SDK_AVAILABLE = False
 SDK_ERROR = ""
 
@@ -29,15 +37,19 @@ except (OSError, ImportError) as e:
 
 
 class MainWindow(Window, Form):
+    """Janela principal que reúne todos os controles de câmera e exibição de imagem."""
+
     def __init__(self) -> None:
         super().__init__()
-        self.setupUi(self)
+        self.setupUi(self)  # Inicializa os widgets gerados a partir do arquivo .ui
 
+        # Atributos de estado controlados pela janela
         self._service: CameraService | None = None
-        self._devInfos = None
+        self._devInfos = None                        # Lista de dispositivos descobertos
         self._camera_thread: CameraThread | None = None
         self._processor: FrameProcessor | None = None
 
+        # Conecta os sinais dos widgets aos métodos de controle
         self.btnSearch.clicked.connect(self._on_search)
         self.btnConnect.clicked.connect(self._on_connect)
         self.btnDisconnect.clicked.connect(self._on_disconnect)
@@ -53,6 +65,7 @@ class MainWindow(Window, Form):
             self._disable_sdk_controls()
             return
 
+        # Instancia as dependências principais somente quando o SDK está disponível
         self._service = CameraService(SciCamera())
         self._devInfos = SCI_DEVICE_INFO_LIST()
         self._processor = FrameProcessor()
@@ -61,6 +74,7 @@ class MainWindow(Window, Form):
     # --- SDK indisponível ---
 
     def _disable_sdk_controls(self) -> None:
+        """Desabilita todos os controles de câmera e exibe mensagem de SDK ausente."""
         self.btnSearch.setEnabled(False)
         self.btnConnect.setEnabled(False)
         self.btnDisconnect.setEnabled(False)
@@ -81,6 +95,7 @@ class MainWindow(Window, Form):
     # --- Busca e conexão ---
 
     def _on_search(self) -> None:
+        """Dispara a busca de câmeras e preenche o combo com os dispositivos encontrados."""
         from app.infrastructure.camera.sci_cam_info import SciCamTLType
 
         self.cameraCombo.clear()
@@ -107,6 +122,7 @@ class MainWindow(Window, Form):
         self.statusbar.showMessage(f"{self._devInfos.count} câmera(s) encontrada(s)")
 
     def _on_connect(self) -> None:
+        """Conecta à câmera selecionada no combo e carrega seus parâmetros iniciais."""
         idx = self.cameraCombo.currentIndex()
         if idx < 0 or idx >= self._devInfos.count:
             return
@@ -130,6 +146,7 @@ class MainWindow(Window, Form):
         log.info(msg)
 
     def _on_disconnect(self) -> None:
+        """Para a captura (se ativa), desconecta a câmera e restaura o estado da UI."""
         log.info('Desconectando câmera')
         self._stop_camera_thread()
         self._service.disconnect()
@@ -146,9 +163,10 @@ class MainWindow(Window, Form):
         self.groupBoxImage.setEnabled(False)
         self.statusbar.showMessage("Câmera desconectada")
 
-    # --- Captura ---
+    # --- Captura de frames ---
 
     def _on_start_grab(self) -> None:
+        """Inicia a captura contínua e sobe a CameraThread para processar frames."""
         log.info('Iniciando captura de imagens')
         ok, msg = self._service.start_grabbing()
         if not ok:
@@ -166,6 +184,7 @@ class MainWindow(Window, Form):
         log.info(msg)
 
     def _on_stop_grab(self) -> None:
+        """Para a CameraThread e solicita ao SDK que interrompa o fluxo de frames."""
         log.info('Parando captura de imagens')
         self._stop_camera_thread()
         self._service.stop_grabbing()
@@ -175,17 +194,24 @@ class MainWindow(Window, Form):
         self.statusbar.showMessage("Captura parada")
 
     def _stop_camera_thread(self) -> None:
+        """Interrompe a thread de captura de forma segura, se ela estiver em execução."""
         if self._camera_thread and self._camera_thread.isRunning():
             self._camera_thread.stop()
             self._camera_thread = None
 
     def _on_thread_error(self, msg: str) -> None:
+        """Exibe na barra de status erros emitidos pela CameraThread."""
         log.error('Erro na thread de captura: %s', msg)
         self.statusbar.showMessage(f"Erro: {msg}")
 
     # --- Parâmetros de imagem ---
 
     def _apply_params(self, params: CameraParams) -> None:
+        """Aplica os parâmetros lidos da câmera nos sliders e labels da UI.
+
+        Bloqueia os sinais dos widgets durante a atualização para evitar
+        chamadas de retorno ao SDK enquanto os controles são inicializados.
+        """
         self.chkAutoExposure.blockSignals(True)
         self.chkAutoExposure.setChecked(params.auto_exposure)
         self.chkAutoExposure.blockSignals(False)
@@ -211,26 +237,35 @@ class MainWindow(Window, Form):
         self.lblGammaVal.setText(f'{params.gamma:.2f}')
 
     def _on_auto_exposure_changed(self, state: int) -> None:
+        """Ativa/desativa a exposição automática e ajusta o estado do slider."""
         self._service.set_auto_exposure(bool(state))
         self.sliderExposure.setEnabled(not bool(state))
 
     def _on_exposure_changed(self, value: int) -> None:
+        """Atualiza o label e envia o novo tempo de exposição (µs) para a câmera."""
         self.lblExposureVal.setText(f'{value} µs')
         self._service.set_exposure(float(value))
 
     def _on_gain_changed(self, value: int) -> None:
+        """Converte o valor do slider (inteiro *10) em dB e envia para a câmera."""
         gain_db = value / 10.0
         self.lblGainVal.setText(f'{gain_db:.1f} dB')
         self._service.set_gain(gain_db)
 
     def _on_gamma_changed(self, value: int) -> None:
+        """Converte o valor do slider (inteiro *100) em gamma e envia para a câmera."""
         gamma = value / 100.0
         self.lblGammaVal.setText(f'{gamma:.2f}')
         self._service.set_gamma(gamma)
 
-    # --- Frame rendering ---
+    # --- Renderização de frames ---
 
     def _on_frame_ready(self, qimage: QImage, width: int, height: int, frameID: int) -> None:
+        """Recebe um frame da CameraThread, escala-o para o widget e atualiza o contador.
+
+        O escalonamento usa KeepAspectRatio com FastTransformation para minimizar
+        o impacto de performance no loop de captura em alta frequência.
+        """
         pixmap = QPixmap.fromImage(qimage)
         scaled = pixmap.scaled(
             self.lblImage.width(),
@@ -244,6 +279,7 @@ class MainWindow(Window, Form):
     # --- Encerramento ---
 
     def closeEvent(self, event) -> None:
+        """Garante que a câmera e a thread sejam liberadas antes de fechar a janela."""
         log.info('Encerrando aplicação')
         self._stop_camera_thread()
         if self._service:

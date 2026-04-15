@@ -1,4 +1,20 @@
 # coding: utf-8
+"""
+Códigos de status retornados pelas funções do SDK SciCam.
+
+Convenção: 0 (SCI_CAMERA_OK) indica sucesso;
+qualquer valor diferente indica um erro específico.
+
+Os códigos estão agrupados por categoria:
+  - 100100001–10019: Inicialização e ciclo de vida do dispositivo
+  - 100100020–30029: Operações de captura (grab)
+  - 100100030–50039: Parâmetros e XML de configuração
+  - 100100040–50049: Nós do nodemap GenICam
+  - 100100050–50059: Dados de imagem
+  - 100100060–50069: ChunkData
+  - 100100070–50079: Memória e buffers
+  - 100120001–50016: Erros específicos de transporte (CTI/GenTL)
+"""
 
 SCI_CAMERA_OK								        = 0			    # < \~chinese 成功					\~english Success
 
