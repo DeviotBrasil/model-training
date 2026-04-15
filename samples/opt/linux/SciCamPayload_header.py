@@ -1,37 +1,13 @@
-# -*- coding: latin-1 -*-
 import ctypes
 import enum
 import platform
 import os
-from pathlib import Path
 
 from ctypes import *
 from enum import Enum
 from enum import IntEnum
 
-_platform_dir = 'windows' if platform.system() == 'Windows' else 'linux'
-_LIBS_DIR = Path(__file__).parents[3] / 'libs' / _platform_dir
-
-# if platform.system() == "Windows":
-# 	if platform.architecture()[0] == "64bit":
-# 		sdk_path = os.environ.get('OPTMV_COMMON_RUNENV64')
-# 	else:
-# 		sdk_path = os.environ.get('OPTMV_COMMON_RUNENV32')
-
-# 	if sdk_path:
-# 		dll_path = os.path.join(sdk_path, 'SciCamSDK.dll')
-# 		SciCamCtrlDll = ctypes.CDLL(dll_path)
-# 	else:
-# 		raise EnvironmentError("SDK_PATH environment variable is not set")
-# else:
-# 	current_directory = os.path.dirname(os.path.abspath(__file__))
-# 	lib_path = os.path.join(current_directory, 'libSciCamSDK.so')
-# 	SciCamCtrlDll = ctypes.CDLL(lib_path)
-
-
-system = platform.system()
-if(system == "Windows"):
-	# Windows
+if platform.system() == "Windows":
 	if platform.architecture()[0] == "64bit":
 		sdk_path = os.environ.get('OPTMV_COMMON_RUNENV64')
 	else:
@@ -42,23 +18,13 @@ if(system == "Windows"):
 		SciCamCtrlDll = ctypes.CDLL(dll_path)
 	else:
 		raise EnvironmentError("SDK_PATH environment variable is not set")
-elif system == "Darwin":
-	# MacOS
-	lib_path = str(_LIBS_DIR / 'libSciCamSDK.dylib')
-	try:
-		SciCamCtrlDll = ctypes.CDLL(lib_path)
-	except OSError as e:
-		raise EnvironmentError(f"Failed to load SDK library: {e}")
 else:
-	# Linux
-	lib_path = str(_LIBS_DIR / 'libSciCamSDK.so')
-	try:
-		SciCamCtrlDll = ctypes.CDLL(lib_path)
-	except OSError as e:
-	    raise EnvironmentError(f"Failed to load SDK library: {e}")
+	current_directory = os.path.dirname(os.path.abspath(__file__))
+	lib_path = os.path.join(current_directory, 'libSciCamSDK.so')
+	SciCamCtrlDll = ctypes.CDLL(lib_path)
 
 ## @~chinese
-#  @brief åƒç´ ç±»å‹
+#  @brief ÏñËØÀàĞÍ
 #  @~english
 #  @brief Pixel type
 class SciCamPixelType(IntEnum):
@@ -576,12 +542,12 @@ class SciCamPixelType(IntEnum):
 	BayerBG4p = 0x01040110
 
 ## @~chinese
-#  @brief Payloadæ¨¡å¼
+#  @brief PayloadÄ£Ê½
 #  @~english
 #  @brief Payload mode
 class SciCamPayloadMode(IntEnum):
 	## @~chinese
-	#  @brief æœªçŸ¥
+	#  @brief Î´Öª
 	#  @~english
 	#  @brief Unknown
 	SciCam_PayloadMode_Unknown = 0
@@ -591,28 +557,28 @@ class SciCamPayloadMode(IntEnum):
 	#  @brief 2D
 	SciCam_PayloadMode_2D = 1
 	## @~chinese
-	#  @brief LP3Då›¾åƒ
+	#  @brief LP3DÍ¼Ïñ
 	#  @~english
 	#  @brief Image
 	SciCam_PayloadMode_LP3D_Image = 11
 	## @~chinese
-	#  @brief LP3Dè½®å»“
+	#  @brief LP3DÂÖÀª
 	#  @~english
 	#  @brief Contour
 	SciCam_PayloadMode_LP3D_Contour = 12
 	## @~chinese
-	#  @brief LP3Dæ·±åº¦å›¾
+	#  @brief LP3DÉî¶ÈÍ¼
 	#  @~english
 	#  @brief Batch Contour
 	SciCam_PayloadMode_LP3D_BatchContour = 13
 	## @~chinese
-	#  @brief åŠ é€Ÿç›¸æœº
+	#  @brief ¼ÓËÙÏà»ú
 	#  @~english
 	#  @brief ACC
 	SciCam_PayloadMode_ACC = 21
 
 ## @~chinese
-#  @brief Payloadæ•°æ®ç±»å‹
+#  @brief PayloadÊı¾İÀàĞÍ
 #  @~english
 #  @brief Payload data type
 class SciCamPayloadDataType(IntEnum):
@@ -632,16 +598,16 @@ class SciCamPayloadDataType(IntEnum):
 	SciCam_Payload_DataType_DOUBLE = 6
 
 ## @~chinese
-#  @brief ç›¸æœºå›¾åƒå±æ€§
-#  @details åŒ…å«å›¾åƒçš„å®½åº¦ã€é«˜åº¦ã€åç§»é‡ã€åƒç´ ç±»å‹ç­‰ä¿¡æ¯
-#  @param width å›¾åƒå®½åº¦
-#  @param height å›¾åƒé«˜åº¦
-#  @param offsetX Xåç§»é‡
-#  @param offsetY Yåç§»é‡
-#  @param paddingX Xè¾¹ç¼˜å¡«å……
-#  @param paddingY Yè¾¹ç¼˜å¡«å……
-#  @param pixelType åƒç´ ç±»å‹
-#  @param reserve é¢„ç•™æ‰©å±•
+#  @brief Ïà»úÍ¼ÏñÊôĞÔ
+#  @details °üº¬Í¼ÏñµÄ¿í¶È¡¢¸ß¶È¡¢Æ«ÒÆÁ¿¡¢ÏñËØÀàĞÍµÈĞÅÏ¢
+#  @param width Í¼Ïñ¿í¶È
+#  @param height Í¼Ïñ¸ß¶È
+#  @param offsetX XÆ«ÒÆÁ¿
+#  @param offsetY YÆ«ÒÆÁ¿
+#  @param paddingX X±ßÔµÌî³ä
+#  @param paddingY Y±ßÔµÌî³ä
+#  @param pixelType ÏñËØÀàĞÍ
+#  @param reserve Ô¤ÁôÀ©Õ¹
 #  @~english
 #  @brief Camera image attribute
 #  @details Contains image width, height, offset, pixel type, etc.
@@ -665,26 +631,26 @@ class _SCI_CAM_IMAGE_ATTRIBUTE_(ctypes.Structure):
 		("reserve", ctypes.c_ubyte * 32)]
 
 ## @~chinese
-#  @brief ç›¸æœºå›¾åƒå±æ€§
+#  @brief Ïà»úÍ¼ÏñÊôĞÔ
 #  @~english
 #  @brief Camera image attribute
 SCI_CAM_IMAGE_ATTRIBUTE = _SCI_CAM_IMAGE_ATTRIBUTE_
 ## @~chinese
-#  @brief ç›¸æœºå›¾åƒå±æ€§æŒ‡é’ˆ
+#  @brief Ïà»úÍ¼ÏñÊôĞÔÖ¸Õë
 #  @~english
 #  @brief Camera image attribute pointer
 PSCI_CAM_IMAGE_ATTRIBUTE = ctypes.POINTER(_SCI_CAM_IMAGE_ATTRIBUTE_)
 
 ## @~chinese
-#  @brief Payloadå±æ€§
-#  @details åŒ…å«å¸§IDã€å¸§æ•°æ®å®Œæ•´æ€§ã€å«ChunkDataã€æ—¶é—´æˆ³ã€Payloadæ¨¡å¼ã€å›¾åƒå±æ€§ã€é¢„ç•™æ‰©å±•ç­‰ä¿¡æ¯
-#  @param frameID å¸§ID
-#  @param isComplete å¸§æ•°æ®å®Œæ•´æ€§
-#  @param hasChunk å«ChunkData
-#  @param timeStamp æ—¶é—´æˆ³
-#  @param payloadMode Payloadæ¨¡å¼
-#  @param imgAttr å›¾åƒå±æ€§
-#  @param reserve é¢„ç•™æ‰©å±•
+#  @brief PayloadÊôĞÔ
+#  @details °üº¬Ö¡ID¡¢Ö¡Êı¾İÍêÕûĞÔ¡¢º¬ChunkData¡¢Ê±¼ä´Á¡¢PayloadÄ£Ê½¡¢Í¼ÏñÊôĞÔ¡¢Ô¤ÁôÀ©Õ¹µÈĞÅÏ¢
+#  @param frameID Ö¡ID
+#  @param isComplete Ö¡Êı¾İÍêÕûĞÔ
+#  @param hasChunk º¬ChunkData
+#  @param timeStamp Ê±¼ä´Á
+#  @param payloadMode PayloadÄ£Ê½
+#  @param imgAttr Í¼ÏñÊôĞÔ
+#  @param reserve Ô¤ÁôÀ©Õ¹
 #  @~english
 #  @brief Payload attribute
 #  @details Contains frame ID, frame data integrity, chunk data, time stamp, payload mode, image attribute, and reserved extension
@@ -706,77 +672,22 @@ class _SCI_CAM_PAYLOAD_ATTRIBUTE_(ctypes.Structure):
 		("reserve", ctypes.c_ubyte * 64)]
 
 ## @~chinese
-#  @brief Payloadå±æ€§
+#  @brief PayloadÊôĞÔ
 #  @~english
 #  @brief Payload attribute
 SCI_CAM_PAYLOAD_ATTRIBUTE = _SCI_CAM_PAYLOAD_ATTRIBUTE_
 ## @~chinese
-#  @brief Payloadå±æ€§æŒ‡é’ˆ
+#  @brief PayloadÊôĞÔÖ¸Õë
 #  @~english
 #  @brief Payload attribute pointer
 PSCI_CAM_PAYLOAD_ATTRIBUTE = ctypes.POINTER(_SCI_CAM_PAYLOAD_ATTRIBUTE_)
 
-
 ## @~chinese
-#  @brief PayloadExå±æ€§
-#  @details åŒ…å«å¸§IDã€å¸§æ•°æ®å®Œæ•´æ€§ã€å«ChunkDataã€æ—¶é—´æˆ³ã€Payloadæ¨¡å¼ã€å›¾åƒå±æ€§ã€é¢„ç•™æ‰©å±•ç­‰ä¿¡æ¯
-#  @param frameID å¸§ID
-#  @param isComplete å¸§æ•°æ®å®Œæ•´æ€§
-#  @param hasChunk å«ChunkData
-#  @param timeStamp æ—¶é—´æˆ³
-#  @param payloadMode Payloadæ¨¡å¼
-#  @param imgAttr å›¾åƒå±æ€§
-#  @param reserve é¢„ç•™æ‰©å±•
-#  @~english
-#  @brief Payload attribute
-#  @details Contains frame ID, frame data integrity, chunk data, time stamp, payload mode, image attribute, and reserved extension
-#  @param frameID Frame ID
-#  @param isComplete Frame data integrity
-#  @param hasChunk Has chunk data
-#  @param timeStamp Time stamp
-#  @param payloadMode Payload mode
-#  @param imgAttr Image attribute
-#  @param reserve Reserved extension
-class _SCI_CAM_PAYLOAD_ATTRIBUTE_EX_(ctypes.Structure):
-	_fields_ = [
-		("frameID", ctypes.c_uint64),
-		("isComplete", ctypes.c_bool),
-		("hasChunk", ctypes.c_bool),
-		("payloadMode", ctypes.c_int),
-		("width", ctypes.c_uint64),
-		("height", ctypes.c_uint64),
-		("offsetX", ctypes.c_uint64),
-		("offsetY", ctypes.c_uint64),
-		("paddingX", ctypes.c_uint64),
-		("paddingY", ctypes.c_uint64),
-		("pixelType", ctypes.c_int),
-		("timeStamp", ctypes.c_uint32),
-		("counter", ctypes.c_uint32),
-		("framecounter", ctypes.c_uint32),
-		("exposure", ctypes.c_float),
-		("gain", ctypes.c_float),
-		("reserve", ctypes.c_ubyte * 64)]
-
-## @~chinese
-#  @brief Payloadå±æ€§
-#  @~english
-#  @brief Payload attribute
-SCI_CAM_PAYLOAD_ATTRIBUTE_EX = _SCI_CAM_PAYLOAD_ATTRIBUTE_EX_
-## @~chinese
-#  @brief Payloadå±æ€§æŒ‡é’ˆ
-#  @~english
-#  @brief Payload attribute pointer
-PSCI_CAM_PAYLOAD_ATTRIBUTE_EX = ctypes.POINTER(_SCI_CAM_PAYLOAD_ATTRIBUTE_EX_)
-
-
-
-
-## @~chinese
-#  @brief Chunk dataç»“æ„
-#  @details åŒ…å«IDã€é•¿åº¦ã€æŒ‡å‘chunk dataå†…å­˜å¤´æŒ‡é’ˆç­‰ä¿¡æ¯
+#  @brief Chunk data½á¹¹
+#  @details °üº¬ID¡¢³¤¶È¡¢Ö¸Ïòchunk dataÄÚ´æÍ·Ö¸ÕëµÈĞÅÏ¢
 #  @param id ID
-#  @param len é•¿åº¦
-#  @param data æŒ‡å‘chunk dataå†…å­˜å¤´æŒ‡é’ˆ
+#  @param len ³¤¶È
+#  @param data Ö¸Ïòchunk dataÄÚ´æÍ·Ö¸Õë
 #  @~english
 #  @brief Chunk data structure
 #  @details Contains ID, length, and pointer to the head of chunk data memory
@@ -792,10 +703,10 @@ SCI_CAM_CHUNK = _SCI_CAM_CHUNK_
 PSCI_CAM_CHUNK = ctypes.POINTER(_SCI_CAM_CHUNK_)
 
 ## @~chinese
-#  @brief Chunk dataåˆ—è¡¨
-#  @details åŒ…å«æœ‰æ•ˆä¸ªæ•°ã€Chunk dataæ•°ç»„
-#  @param count æœ‰æ•ˆä¸ªæ•°
-#  @param chunk Chunk dataæ•°ç»„
+#  @brief Chunk dataÁĞ±í
+#  @details °üº¬ÓĞĞ§¸öÊı¡¢Chunk dataÊı×é
+#  @param count ÓĞĞ§¸öÊı
+#  @param chunk Chunk dataÊı×é
 #  @~english
 #  @brief Chunk data list
 #  @details Contains the number of valid chunks and an array of chunk data
@@ -807,23 +718,23 @@ class _SCI_CAM_CHUNK_LIST_(ctypes.Structure):
 		("chunk", SCI_CAM_CHUNK * 256)]
 
 ## @~chinese
-#  @brief Chunk dataåˆ—è¡¨
+#  @brief Chunk dataÁĞ±í
 #  @~english
 #  @brief Chunk data list
 SCI_CAM_CHUNK_LIST = _SCI_CAM_CHUNK_LIST_
 ## @~chinese
-#  @brief Chunk dataåˆ—è¡¨æŒ‡é’ˆ
+#  @brief Chunk dataÁĞ±íÖ¸Õë
 #  @~english
 #  @brief Chunk data list pointer
 PSCI_CAM_CHUNK_LIST = ctypes.POINTER(_SCI_CAM_CHUNK_LIST_)
 
 ## @~chinese
-#  @brief Chunk å…ƒæ•°æ®ä¿¡æ¯ï¼ˆ3Dçº¿æ‰«æ¿€å…‰è½®å»“è®¾å¤‡ä¸“å±ï¼‰
-#  @details åŒ…å«ç‰ˆæœ¬å·ã€å¸§IDã€å¸§å†…ç´¢å¼•ã€å¸§å†…ç´¢å¼•ç­‰ä¿¡æ¯
-#  @param version ç‰ˆæœ¬å·
-#  @param frameId å¸§ID
-#  @param index å¸§å†…ç´¢å¼•
-#  @param finished å¸§å†…ç´¢å¼•
+#  @brief Chunk ÔªÊı¾İĞÅÏ¢£¨3DÏßÉ¨¼¤¹âÂÖÀªÉè±¸×¨Êô£©
+#  @details °üº¬°æ±¾ºÅ¡¢Ö¡ID¡¢Ö¡ÄÚË÷Òı¡¢Ö¡ÄÚË÷ÒıµÈĞÅÏ¢
+#  @param version °æ±¾ºÅ
+#  @param frameId Ö¡ID
+#  @param index Ö¡ÄÚË÷Òı
+#  @param finished Ö¡ÄÚË÷Òı
 #  @~english
 #  @brief Metadata Information(Exclusive to 3D Line Scan Laser Profiling Devices)
 #  @details Contains version number, frame ID, intra-frame index, and frame completion flag
@@ -838,45 +749,45 @@ class _SCI_CAM_LP3D_META_(ctypes.Structure):
 		("index", ctypes.c_uint32),
 		("finished", ctypes.c_bool)]
 ## @~chinese
-#  @brief Chunk dataåˆ—è¡¨
+#  @brief Chunk dataÁĞ±í
 #  @~english
 #  @brief Chunk data list
 SCI_CAM_LP3D_META = _SCI_CAM_LP3D_META_
 ## @~chinese
-#  @brief Chunk dataåˆ—è¡¨æŒ‡é’ˆ
+#  @brief Chunk dataÁĞ±íÖ¸Õë
 #  @~english
 #  @brief Chunk data list pointer
 PSCI_CAM_LP3D_META = ctypes.POINTER(_SCI_CAM_LP3D_META_)
 
 ## @~chinese
-#  @brief ç»“æ„å…‰è®¾å¤‡ç±»å‹ï¼ˆ3Dç»“æ„å…‰è®¾å¤‡ä¸“å±ï¼‰
+#  @brief ½á¹¹¹âÉè±¸ÀàĞÍ£¨3D½á¹¹¹âÉè±¸×¨Êô£©
 #  @~english
 #  @brief Structured Light Device Type (Exclusive to 3D Structured Light Devices)
 class SciCamPayloadSL3DDeviceType(IntEnum):
 	## @~chinese
-	#  @brief æœªçŸ¥è®¾å¤‡ç±»å‹
+	#  @brief Î´ÖªÉè±¸ÀàĞÍ
 	#  @~english
 	#  @brief Unknown device type
 	SciCam_payload_SL_DeviceType_Unknown = 0,
 	## @~chinese
-	#  @brief æ¡çº¹è®¾å¤‡ç±»å‹
+	#  @brief ÌõÎÆÉè±¸ÀàĞÍ
 	#  @~english
 	#  @brief Striped device type
 	SciCam_payload_SL_DeviceType_Striped = 2,
 	## @~chinese
-	#  @brief æ•£æ–‘è®¾å¤‡ç±»å‹
+	#  @brief É¢°ßÉè±¸ÀàĞÍ
 	#  @~english
 	#  @brief Speckle device type
 	SciCam_payload_SL_DeviceType_Speckle = 3,
 
 ## @~chinese
-#  @brief SL3Då…ƒæ•°æ®ä¿¡æ¯ï¼ˆ3Dç»“æ„å…‰è®¾å¤‡ä¸“å±ï¼‰
-#  @details åŒ…å«è®¾å¤‡ç±»å‹ã€ç‰ˆæœ¬å·ã€å¸§IDã€æ˜¯å¦ç»“æŸå¸§æ•°æ®ã€ä¿ç•™å­—ç­‰ä¿¡æ¯
-#  @param deviceType è®¾å¤‡ç±»å‹
-#  @param version ç‰ˆæœ¬å·
-#  @param frameId å¸§ID
-#  @param finished æ˜¯å¦ç»“æŸå¸§æ•°æ®
-#  @param reserve ä¿ç•™å­—
+#  @brief SL3DÔªÊı¾İĞÅÏ¢£¨3D½á¹¹¹âÉè±¸×¨Êô£©
+#  @details °üº¬Éè±¸ÀàĞÍ¡¢°æ±¾ºÅ¡¢Ö¡ID¡¢ÊÇ·ñ½áÊøÖ¡Êı¾İ¡¢±£Áô×ÖµÈĞÅÏ¢
+#  @param deviceType Éè±¸ÀàĞÍ
+#  @param version °æ±¾ºÅ
+#  @param frameId Ö¡ID
+#  @param finished ÊÇ·ñ½áÊøÖ¡Êı¾İ
+#  @param reserve ±£Áô×Ö
 #  @~english
 #  @brief SL3D Metadata Information (Exclusive to 3D Structured Light Devices)
 #  @details Contains device type, version number, frame ID, whether the frame data is finished, and reserved information
@@ -894,120 +805,115 @@ class _SCI_CAM_SL3D_META_(ctypes.Structure):
 		("reserve", ctypes.c_ubyte * 15)]
 
 ## @~chinese
-#  @brief SL3Då…ƒæ•°æ®ä¿¡æ¯
+#  @brief SL3DÔªÊı¾İĞÅÏ¢
 #  @~english
 #  @brief SL3D Metadata Information
 SCI_CAM_SL3D_META = _SCI_CAM_SL3D_META_
 ## @~chinese
-#  @brief SL3Då…ƒæ•°æ®ä¿¡æ¯æŒ‡é’ˆ
+#  @brief SL3DÔªÊı¾İĞÅÏ¢Ö¸Õë
 #  @~english
 #  @brief SL3D Metadata Information Pointer
 PSCI_CAM_SL3D_META = ctypes.POINTER(_SCI_CAM_SL3D_META_)
 
 ## @~chinese
-#  @brief ç›®æ ‡æ•°æ®ç±»å‹ï¼ˆ3Dç»“æ„å…‰è®¾å¤‡ä¸“å±ï¼‰
+#  @brief Ä¿±êÊı¾İÀàĞÍ£¨3D½á¹¹¹âÉè±¸×¨Êô£©
 #  @~english
 #  @brief SL3D Target Data Type (Exclusive to 3D Structured Light Devices)
 class SciCamPayloadSL3DTargetDataType(IntEnum):
 	## @~chinese
-	#  @brief ä¸€æ¬¡é‡‡é›†æ‰€æœ‰åŸå›¾
+	#  @brief Ò»´Î²É¼¯ËùÓĞÔ­Í¼
 	#  @~english
 	#  @brief All original images collected once
 	SciCam_payload_SL_2D = 0
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰3Dç‚¹äº‘æ•°æ®
+	#  @brief ÌõÎÆ½á¹¹¹â3DµãÔÆÊı¾İ
 	#  @~english
 	#  @brief 3D point cloud data of striped structured light
 	SciCam_payload_SL_Striped_3D = 10
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å·¦2DåŸå›¾
+	#  @brief ÌõÎÆ½á¹¹¹â×ó2DÔ­Í¼
 	#  @~english
 	#  @brief Left 2D original image of striped structured light
 	SciCam_payload_SL_Striped_2D_Left = 11
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å³2DåŸå›¾
+	#  @brief ÌõÎÆ½á¹¹¹âÓÒ2DÔ­Í¼
 	#  @~english
 	#  @brief Right 2D original image of striped structured light
 	SciCam_payload_SL_Striped_2D_Right = 12
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å·¦2Dè°ƒåˆ¶å›¾
+	#  @brief ÌõÎÆ½á¹¹¹â×ó2Dµ÷ÖÆÍ¼
 	#  @~english
 	#  @brief Left 2D modulation image of striped structured light
 	SciCam_payload_SL_Striped_2D_LeftModulation = 13
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å³2Dè°ƒåˆ¶å›¾
+	#  @brief ÌõÎÆ½á¹¹¹âÓÒ2Dµ÷ÖÆÍ¼
 	#  @~english
 	#  @brief Right 2D modulation image of striped structured light
 	SciCam_payload_SL_Striped_2D_RightModulation = 14
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å·¦2Dè°ƒåˆ¶å¯¹æ¯”å›¾
+	#  @brief ÌõÎÆ½á¹¹¹â×ó2Dµ÷ÖÆ¶Ô±ÈÍ¼
 	#  @~english
 	#  @brief Left 2D modulation contrast image of striped structured light
 	SciCam_payload_SL_Striped_2D_LeftModulationContrast = 15
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å³2Dè°ƒåˆ¶å¯¹æ¯”å›¾
+	#  @brief ÌõÎÆ½á¹¹¹âÓÒ2Dµ÷ÖÆ¶Ô±ÈÍ¼
 	#  @~english
 	#  @brief Right 2D modulation contrast image of striped structured light
 	SciCam_payload_SL_Striped_2D_RightModulationContrast = 16
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å·¦2Dæ¡çº¹å›¾
+	#  @brief ÌõÎÆ½á¹¹¹â×ó2DÌõÎÆÍ¼
 	#  @~english
 	#  @brief Left 2D stripe image of striped structured light
 	SciCam_payload_SL_Striped_2D_LeftStripe = 17
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰å³2Dæ¡çº¹å›¾
+	#  @brief ÌõÎÆ½á¹¹¹âÓÒ2DÌõÎÆÍ¼
 	#  @~english
 	#  @brief Right 2D stripe image of striped structured light
 	SciCam_payload_SL_Striped_2D_RightStripe = 18
 	## @~chinese
-	#  @brief æ¡çº¹ç»“æ„å…‰2Dè´¨é‡å›¾
-	#  @~english
-	#  @brief 2D quality image of striped structured light
-	SciCam_payload_SL_Striped_2D_Quality = 19
-	## @~chinese
-	#  @brief æ•£æ–‘ç»“æ„å…‰3Dç‚¹äº‘æ•°æ®
+	#  @brief É¢°ß½á¹¹¹â3DµãÔÆÊı¾İ
 	#  @~english
 	#  @brief 3D point cloud data of speckle structured light
 	SciCam_payload_SL_Speckle_3D = 40
 	## @~chinese
-	#  @brief æ•£æ–‘ç»“æ„å…‰å·¦2DåŸå›¾
+	#  @brief É¢°ß½á¹¹¹â×ó2DÔ­Í¼
 	#  @~english
 	#  @brief Left 2D original image of speckle structured light
 	SciCam_payload_SL_Speckle_2D_Left = 41
 	## @~chinese
-	#  @brief æ•£æ–‘ç»“æ„å…‰å³2DåŸå›¾
+	#  @brief É¢°ß½á¹¹¹âÓÒ2DÔ­Í¼
 	#  @~english
 	#  @brief Right 2D original image of speckle structured light
 	SciCam_payload_SL_Speckle_2D_Right = 42
 	## @~chinese
-	#  @brief æ•£æ–‘ç»“æ„å…‰å·¦2Dæçº¿æ ¡æ­£å›¾
+	#  @brief É¢°ß½á¹¹¹â×ó2D¼«ÏßĞ£ÕıÍ¼
 	#  @~english
 	#  @brief Left 2D epipolar rectification image of speckle structured light
 	SciCam_payload_SL_Speckle_2D_LeftEpipolarRectification = 43
 	## @~chinese
-	#  @brief æ•£æ–‘ç»“æ„å…‰å³2Dæçº¿æ ¡æ­£å›¾
+	#  @brief É¢°ß½á¹¹¹âÓÒ2D¼«ÏßĞ£ÕıÍ¼
 	#  @~english
 	#  @brief Right 2D epipolar rectification image of speckle structured light
 	SciCam_payload_SL_Speckle_2D_RightEpipolarRectification = 44
 	## @~chinese
-	#  @brief æ•£æ–‘ç»“æ„å…‰2Då½©è‰²å›¾
+	#  @brief É¢°ß½á¹¹¹â2D²ÊÉ«Í¼
 	#  @~english
 	#  @brief 2D color image of speckle structured light
 	SciCam_payload_SL_Speckle_2D_Color = 45
 
 ## @~chinese
-#  @brief 3Då›¾åƒä¿¡æ¯ï¼ˆ3Dç»“æ„å…‰è®¾å¤‡ä¸“å±ï¼‰
-#  @details åŒ…å«æœ€å°å€¼ã€æœ€å¤§å€¼ã€åˆ†è¾¨ç‡ã€åç§»ã€æ¨¡å‹ç±»å‹ã€ä¿ç•™å­—ç­‰ä¿¡æ¯
-#  @param minValue æœ€å°å€¼
-#  @param maxValue æœ€å¤§å€¼
-#  @param resolutionX Xæ–¹å‘åˆ†è¾¨ç‡
-#  @param resolutionY Yæ–¹å‘åˆ†è¾¨ç‡
-#  @param resolutionZ Zæ–¹å‘åˆ†è¾¨ç‡
-#  @param offsetX Xæ–¹å‘åç§»
-#  @param offsetY Yæ–¹å‘åç§»
-#  @param offsetZ Zæ–¹å‘åç§»
-#  @param modelType æ¨¡å‹ç±»å‹
-#  @param reserve ä¿ç•™å­—
+#  @brief 3DÍ¼ÏñĞÅÏ¢£¨3D½á¹¹¹âÉè±¸×¨Êô£©
+#  @details °üº¬×îĞ¡Öµ¡¢×î´óÖµ¡¢·Ö±æÂÊ¡¢Æ«ÒÆ¡¢Ä£ĞÍÀàĞÍ¡¢±£Áô×ÖµÈĞÅÏ¢
+#  @param minValue ×îĞ¡Öµ
+#  @param maxValue ×î´óÖµ
+#  @param resolutionX X·½Ïò·Ö±æÂÊ
+#  @param resolutionY Y·½Ïò·Ö±æÂÊ
+#  @param resolutionZ Z·½Ïò·Ö±æÂÊ
+#  @param offsetX X·½ÏòÆ«ÒÆ
+#  @param offsetY Y·½ÏòÆ«ÒÆ
+#  @param offsetZ Z·½ÏòÆ«ÒÆ
+#  @param modelType Ä£ĞÍÀàĞÍ
+#  @param reserve ±£Áô×Ö
 #  @~english
 #  @brief 3D Image Information (Exclusive to 3D Structured Light Devices)
 #  @details Contains minimum value, maximum value, resolution, offset, model type, and reserved information
@@ -1035,31 +941,31 @@ class _SCI_CAM_SL3D_3DDATA_INFO_(ctypes.Structure):
 		("reserve", ctypes.c_ubyte * 63)]
 
 ## @~chinese
-#  @brief 3Då›¾åƒä¿¡æ¯
+#  @brief 3DÍ¼ÏñĞÅÏ¢
 #  @~english
 #  @brief 3D Image Information
 SCI_CAM_SL3D_3DDATA_INFO = _SCI_CAM_SL3D_3DDATA_INFO_
 ## @~chinese
-#  @brief 3Då›¾åƒä¿¡æ¯æŒ‡é’ˆ
+#  @brief 3DÍ¼ÏñĞÅÏ¢Ö¸Õë
 #  @~english
 #  @brief 3D Image Information Pointer
 PSCI_CAM_SL3D_3DDATA_INFO = ctypes.POINTER(_SCI_CAM_SL3D_3DDATA_INFO_)
 
 ## @~chinese
-#  @brief ç›®æ ‡æ•°æ®ç»“æ„ï¼ˆ3Dç»“æ„å…‰è®¾å¤‡ä¸“å±ï¼‰
-#  @details åŒ…å«è®¾å¤‡ç±»å‹ã€å›¾åƒç±»å‹ã€å›¾åƒæ•°é‡ã€æ˜¯å¦å·²ç»è®¡ç®—è¿‡æ•°æ®ã€åƒç´ æ ¼å¼ã€å›¾åƒå®½åº¦ã€å›¾åƒé«˜åº¦ã€å›¾åƒæ­¥é•¿ã€å›¾åƒé€šé“æ•°ã€æ•°æ®ç±»å‹ã€3Dæ•°æ®ä¿¡æ¯ç­‰ä¿¡æ¯
-#  @param deviceType è®¾å¤‡ç±»å‹ï¼Œå‚è€ƒï¼š @ref SciCamPayloadSL3DDeviceType "SciCamPayloadSL3DDeviceType"
-#  @param imageType å›¾åƒç±»å‹ï¼Œå‚è€ƒï¼š @ref SciCamPayloadSL3DTargetDataType "SciCamPayloadSL3DTargetDataType"
-#  @param imageNum å›¾åƒæ•°é‡
-#  @param calculated æ˜¯å¦å·²ç»è®¡ç®—è¿‡æ•°æ®ï¼Œ0ï¼šæœªè®¡ç®—ï¼Œ1ï¼šå·²è®¡ç®—
-#  @param pixelFormat åƒç´ æ ¼å¼ï¼Œå‚è€ƒï¼š @ref SciCamPixelType "SciCamPixelType"
-#  @param width å›¾åƒå®½åº¦
-#  @param height å›¾åƒé«˜åº¦
-#  @param step å›¾åƒæ­¥é•¿
-#  @param channel å›¾åƒé€šé“æ•°
-#  @param dataType æ•°æ®ç±»å‹ï¼Œå‚è€ƒï¼š @ref SciCamPayloadDataType "SciCamPayloadDataType"
-#  @param RangeImageInfo 3Dæ•°æ®ä¿¡æ¯ï¼Œä»…å½“imageTypeä¸º @ref SciCam_payload_SL_Striped_3D "SciCam_payload_SL_Striped_3D" æˆ– @ref SciCam_payload_SL_Speckle_3D "SciCam_payload_SL_Speckle_3D" æ—¶æœ‰æ•ˆ
-#  @param data æŒ‡å‘ç›®æ ‡æ•°æ®å¤´æŒ‡é’ˆ
+#  @brief Ä¿±êÊı¾İ½á¹¹£¨3D½á¹¹¹âÉè±¸×¨Êô£©
+#  @details °üº¬Éè±¸ÀàĞÍ¡¢Í¼ÏñÀàĞÍ¡¢Í¼ÏñÊıÁ¿¡¢ÊÇ·ñÒÑ¾­¼ÆËã¹ıÊı¾İ¡¢ÏñËØ¸ñÊ½¡¢Í¼Ïñ¿í¶È¡¢Í¼Ïñ¸ß¶È¡¢Í¼Ïñ²½³¤¡¢Í¼ÏñÍ¨µÀÊı¡¢Êı¾İÀàĞÍ¡¢3DÊı¾İĞÅÏ¢µÈĞÅÏ¢
+#  @param deviceType Éè±¸ÀàĞÍ£¬²Î¿¼£º @ref SciCamPayloadSL3DDeviceType "SciCamPayloadSL3DDeviceType"
+#  @param imageType Í¼ÏñÀàĞÍ£¬²Î¿¼£º @ref SciCamPayloadSL3DTargetDataType "SciCamPayloadSL3DTargetDataType"
+#  @param imageNum Í¼ÏñÊıÁ¿
+#  @param calculated ÊÇ·ñÒÑ¾­¼ÆËã¹ıÊı¾İ£¬0£ºÎ´¼ÆËã£¬1£ºÒÑ¼ÆËã
+#  @param pixelFormat ÏñËØ¸ñÊ½£¬²Î¿¼£º @ref SciCamPixelType "SciCamPixelType"
+#  @param width Í¼Ïñ¿í¶È
+#  @param height Í¼Ïñ¸ß¶È
+#  @param step Í¼Ïñ²½³¤
+#  @param channel Í¼ÏñÍ¨µÀÊı
+#  @param dataType Êı¾İÀàĞÍ£¬²Î¿¼£º @ref SciCamPayloadDataType "SciCamPayloadDataType"
+#  @param RangeImageInfo 3DÊı¾İĞÅÏ¢£¬½öµ±imageTypeÎª @ref SciCam_payload_SL_Striped_3D "SciCam_payload_SL_Striped_3D" »ò @ref SciCam_payload_SL_Speckle_3D "SciCam_payload_SL_Speckle_3D" Ê±ÓĞĞ§
+#  @param data Ö¸ÏòÄ¿±êÊı¾İÍ·Ö¸Õë
 #  @~english
 #  @brief SL3D Target Data Struct (Exclusive to 3D Structured Light Devices)
 #  @param deviceType Device type, references: @ref SciCamPayloadSL3DDeviceType "SciCamPayloadSL3DDeviceType"
@@ -1090,42 +996,42 @@ class _SCI_CAM_SL3D_DATA_(ctypes.Structure):
 		("data", ctypes.c_void_p)]
 
 ## @~chinese
-#  @brief 3Då›¾åƒä¿¡æ¯
+#  @brief 3DÍ¼ÏñĞÅÏ¢
 #  @~english
 #  @brief 3D Image Information
 SCI_CAM_SL3D_DATA = _SCI_CAM_SL3D_DATA_
 ## @~chinese
-#  @brief 3Då›¾åƒä¿¡æ¯æŒ‡é’ˆ
+#  @brief 3DÍ¼ÏñĞÅÏ¢Ö¸Õë
 #  @~english
 #  @brief 3D Image Information Pointer
 PSCI_CAM_SL3D_DATA = ctypes.POINTER(_SCI_CAM_SL3D_DATA_)
 
 ## @~chinese
-#  @brief å½•åƒæ ¼å¼
+#  @brief Â¼Ïñ¸ñÊ½
 #  @~english
 #  @brief Record format
 class SciRecordFormatType(IntEnum):
 	## @~chinese
-	#  @brief æœªå®šä¹‰
+	#  @brief Î´¶¨Òå
 	#  @~english
 	#  @brief Undefined
 	SciRecordFormatType_Undefined = 0
 	## @~chinese
-	#  @brief AVIæ ¼å¼
+	#  @brief AVI¸ñÊ½
 	#  @~english
 	#  @brief AVI format
 	SciRecordFormatType_AVI = 1
 
 ## @~chinese
-#  @brief å½•åƒä¿¡æ¯
-#  @details åŒ…å«åƒç´ ç±»å‹ã€å®½åº¦ã€é«˜åº¦ã€å¸§ç‡ã€å‹ç¼©è´¨é‡ã€å½•åƒæ ¼å¼ã€æ–‡ä»¶è·¯å¾„ç­‰ä¿¡æ¯
-#  @param pixelType åƒç´ ç±»å‹ï¼Œå‚è€ƒï¼š @ref SciCamPixelType "SciCamPixelType"
-#  @param width å®½åº¦
-#  @param height é«˜åº¦
-#  @param frameRate å¸§ç‡
-#  @param quality å‹ç¼©è´¨é‡
-#  @param formatType å½•åƒæ ¼å¼ï¼Œå‚è€ƒï¼š @ref SciRecordFormatType "SciRecordFormatType"
-#  @param strFilePath æ–‡ä»¶è·¯å¾„
+#  @brief Â¼ÏñĞÅÏ¢
+#  @details °üº¬ÏñËØÀàĞÍ¡¢¿í¶È¡¢¸ß¶È¡¢Ö¡ÂÊ¡¢Ñ¹ËõÖÊÁ¿¡¢Â¼Ïñ¸ñÊ½¡¢ÎÄ¼şÂ·¾¶µÈĞÅÏ¢
+#  @param pixelType ÏñËØÀàĞÍ£¬²Î¿¼£º @ref SciCamPixelType "SciCamPixelType"
+#  @param width ¿í¶È
+#  @param height ¸ß¶È
+#  @param frameRate Ö¡ÂÊ
+#  @param quality Ñ¹ËõÖÊÁ¿
+#  @param formatType Â¼Ïñ¸ñÊ½£¬²Î¿¼£º @ref SciRecordFormatType "SciRecordFormatType"
+#  @param strFilePath ÎÄ¼şÂ·¾¶
 #  @~english
 #  @brief Record information
 #  @param pixelType Pixel type, references: @ref SciCamPixelType "SciCamPixelType"
@@ -1147,23 +1053,23 @@ class _SCI_RECORD_INFO_(ctypes.Structure):
 	]
 
 ## @~chinese
-#  @brief å½•åƒä¿¡æ¯
+#  @brief Â¼ÏñĞÅÏ¢
 #  @~english
 #  @brief Record information
 SCI_RECORD_INFO = _SCI_RECORD_INFO_
 ## @~chinese
-#  @brief å½•åƒä¿¡æ¯æŒ‡é’ˆ
+#  @brief Â¼ÏñĞÅÏ¢Ö¸Õë
 #  @~english
 #  @brief Record information pointer
 PSCI_RECORD_INFO = ctypes.POINTER(_SCI_RECORD_INFO_)
 
 ## @~chinese
-#  @brief ç›®æ ‡æ•°æ®ç»“æ„ï¼ˆåŠ é€Ÿç›¸æœºä¸“å±ï¼‰
-#  @details åŒ…å«ç°åº¦è®¡æ•°ã€çº¿è®¡æ•°ã€blobæ•°é‡ã€blobè®¡æ•°ç­‰ä¿¡æ¯
-#  @param grayCount ç°åº¦è®¡æ•°
-#  @param lineCount çº¿è®¡æ•°
-#  @param blobNumber blobæ•°é‡
-#  @param blobCount blobè®¡æ•°
+#  @brief Ä¿±êÊı¾İ½á¹¹£¨¼ÓËÙÏà»ú×¨Êô£©
+#  @details °üº¬»Ò¶È¼ÆÊı¡¢Ïß¼ÆÊı¡¢blobÊıÁ¿¡¢blob¼ÆÊıµÈĞÅÏ¢
+#  @param grayCount »Ò¶È¼ÆÊı
+#  @param lineCount Ïß¼ÆÊı
+#  @param blobNumber blobÊıÁ¿
+#  @param blobCount blob¼ÆÊı
 #  @~english
 #  @brief Target data structure (exclusive to acceleration camera)
 #  @param grayCount Gray count
@@ -1181,11 +1087,11 @@ PSCI_CAM_ACC_BLOB_META = ctypes.POINTER(_SCI_CAM_ACC_BLOB_META_)
 
 ## @ingroup module_PayloadParsingInterface_Generic
 #  @~chinese
-#  @brief è·å–payloadæ•°æ®å±æ€§
-#  @param payload	[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pAttr		[OUT] è·å–åˆ°çš„payloadæ•°æ®å±æ€§ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref PSCI_CAM_PAYLOAD_ATTRIBUTE "PSCI_CAM_PAYLOAD_ATTRIBUTE"
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief »ñÈ¡payloadÊı¾İÊôĞÔ
+#  @param payload	[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pAttr		[OUT] »ñÈ¡µ½µÄpayloadÊı¾İÊôĞÔ£¬ÏêÏ¸²Î¿¼£º @ref PSCI_CAM_PAYLOAD_ATTRIBUTE "PSCI_CAM_PAYLOAD_ATTRIBUTE"
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Get payload data attribute
@@ -1199,19 +1105,14 @@ def SciCam_Payload_GetAttribute(payload, pAttr):
 	SciCamCtrlDll.SciCam_Payload_GetAttribute.restype = ctypes.c_uint
 	return SciCamCtrlDll.SciCam_Payload_GetAttribute(payload, ctypes.byref(pAttr))
 
-def SciCam_Payload_GetAttributeEx(payload, pAttr):
-	SciCamCtrlDll.SciCam_Payload_GetAttributeEx.argtypes = (ctypes.c_void_p, PSCI_CAM_PAYLOAD_ATTRIBUTE_EX)
-	SciCamCtrlDll.SciCam_Payload_GetAttributeEx.restype = ctypes.c_uint
-	return SciCamCtrlDll.SciCam_Payload_GetAttributeEx(payload, ctypes.byref(pAttr))
-
 ## @ingroup module_PayloadParsingInterface_Generic
 #  @~chinese
-#  @brief è·å–å›¾åƒæ•°æ®
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pImg			[OUT] è·å–åˆ°çš„æŒ‡å‘å›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
-#  @remarks è¿™é‡Œçš„å›¾åƒæ•°æ®å†…å­˜ç”±SDKåˆ†é…ï¼Œéšpayloadé”€æ¯è€Œé”€æ¯
+#  @brief »ñÈ¡Í¼ÏñÊı¾İ
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pImg			[OUT] »ñÈ¡µ½µÄÖ¸ÏòÍ¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
+#  @remarks ÕâÀïµÄÍ¼ÏñÊı¾İÄÚ´æÓÉSDK·ÖÅä£¬ËæpayloadÏú»Ù¶øÏú»Ù
 #  @~english
 #  @brief Get image data
 #  @param payload		[IN]  Pointer to the head of payload data
@@ -1226,11 +1127,11 @@ def SciCam_Payload_GetImage(payload, pImg):
 
 ## @ingroup module_PayloadParsingInterface_Generic
 #  @~chinese
-#  @brief æ ¹æ®payloadæ•°æ®è§£æå¾—åˆ°è‡ªå®šä¹‰chunk dataåˆ—è¡¨
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pChunkList	[OUT] è·å–åˆ°çš„chunk dataåˆ—è¡¨ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref PSCI_CAM_CHUNK_LIST "PSCI_CAM_CHUNK_LIST"
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief ¸ù¾İpayloadÊı¾İ½âÎöµÃµ½×Ô¶¨Òåchunk dataÁĞ±í
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pChunkList	[OUT] »ñÈ¡µ½µÄchunk dataÁĞ±í£¬ÏêÏ¸²Î¿¼£º @ref PSCI_CAM_CHUNK_LIST "PSCI_CAM_CHUNK_LIST"
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Obtain a custom chunk data list by parsing payload data
@@ -1246,20 +1147,20 @@ def SciCam_Payload_GetChunkList(payload, pChunkList):
 
 ## @ingroup module_PayloadParsingInterface_Convert
 #  @~chinese
-#  @brief å›¾åƒåƒç´ æ ¼å¼è½¬æ¢
-#  @param imgAttr		[IN]      æºå›¾åƒå±æ€§ä¿¡æ¯ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref PSCI_CAM_IMAGE_ATTRIBUTE "PSCI_CAM_IMAGE_ATTRIBUTE"
-#  @param srcImg		[IN]      æŒ‡å‘æºå›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @param outType		[IN]      ç›®æ ‡å›¾åƒåƒç´ ç±»å‹ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref SciCamPixelType "SciCamPixelType"
-#  @param dstImg		[IN][OUT] æŒ‡å‘ç›®æ ‡å›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @param dstImgSize	[IN][OUT] ç›®æ ‡å›¾åƒæ•°æ®å¤§å°
-#  @param zoom			[IN]      æ˜¯å¦åƒç´ ç¼©æ”¾
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
-#  @remarks ç›®å‰æ”¯æŒå•è‰²å›¾æ ¼å¼ï¼šMono8s/Mono8/Mono16å’Œå½©è‰²å›¾æ ¼å¼:RGB8/RGB16ï¼› \n
-#  			outTypeå¯ä»¥è®¾ç½®ä¸ºPixelTypeUnknownï¼Œæ­¤æ—¶é»˜è®¤æ ¹æ®æºæ ¼å¼è¿›è¡Œè½¬æ¢ï¼› \n
-#  			zoomå‚æ•°ä¸ºå½“å›¾åƒæ·±åº¦ä½æ•°ä¸ç›¸åŒäº’è½¬æ—¶æœ‰æ•ˆã€‚zoomä¸ºfalseæ—¶è¡¨ç¤ºä¸åšåƒç´ ç¼©æ”¾å¤„ç†ï¼Œä¸ºtrueæ—¶åˆ™åƒç´ ç¼©æ”¾å¤„ç†ï¼Œä½†å­˜ä¸‹æ¥çš„å›¾åƒäº®åº¦å€¼æ˜¯ç»è¿‡æ”¾å¤§ï¼Œå¹¶éåŸå§‹æ•°æ®ï¼› \n
-#  			å½“dstImgä¸ºç©ºæ—¶ï¼Œå¯è·å–ç›®æ ‡å›¾åƒæ•°æ®å¤§å°ï¼Œå¯æ ¹æ®å¾—åˆ°çš„dstImgSizeé¢„å…ˆåˆ†é…dstImgå†…å­˜ï¼Œç„¶åå†ä¼ å…¥dstImgæŒ‡é’ˆè¿›è¡Œè·å–ç›®æ ‡å›¾åƒæ•°æ®ã€‚
-#  		æ³¨æ„ï¼Œæ­¤å¤„æ— è®ºæ˜¯RGBè¿˜æ˜¯BGRçš„å½©è‰²å›¾å‡è½¬ä¸ºRGBæ’åˆ—ï¼Œå¯èƒ½å­˜åœ¨æœ‰Bå’ŒRé€šé“ç›¸åçš„ç°è±¡ï¼Œä½¿ç”¨ @ref SciCam_Payload_ConvertImage "SciCam_Payload_ConvertImage"æ¥å£å¯è§£å†³æ­¤é—®é¢˜ï¼›
+#  @brief Í¼ÏñÏñËØ¸ñÊ½×ª»»
+#  @param imgAttr		[IN]      Ô´Í¼ÏñÊôĞÔĞÅÏ¢£¬ÏêÏ¸²Î¿¼£º @ref PSCI_CAM_IMAGE_ATTRIBUTE "PSCI_CAM_IMAGE_ATTRIBUTE"
+#  @param srcImg		[IN]      Ö¸ÏòÔ´Í¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @param outType		[IN]      Ä¿±êÍ¼ÏñÏñËØÀàĞÍ£¬ÏêÏ¸²Î¿¼£º @ref SciCamPixelType "SciCamPixelType"
+#  @param dstImg		[IN][OUT] Ö¸ÏòÄ¿±êÍ¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @param dstImgSize	[IN][OUT] Ä¿±êÍ¼ÏñÊı¾İ´óĞ¡
+#  @param zoom			[IN]      ÊÇ·ñÏñËØËõ·Å
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
+#  @remarks Ä¿Ç°Ö§³Öµ¥É«Í¼¸ñÊ½£ºMono8s/Mono8/Mono16ºÍ²ÊÉ«Í¼¸ñÊ½:RGB8/RGB16£» \n
+#  			outType¿ÉÒÔÉèÖÃÎªPixelTypeUnknown£¬´ËÊ±Ä¬ÈÏ¸ù¾İÔ´¸ñÊ½½øĞĞ×ª»»£» \n
+#  			zoom²ÎÊıÎªµ±Í¼ÏñÉî¶ÈÎ»Êı²»ÏàÍ¬»¥×ªÊ±ÓĞĞ§¡£zoomÎªfalseÊ±±íÊ¾²»×öÏñËØËõ·Å´¦Àí£¬ÎªtrueÊ±ÔòÏñËØËõ·Å´¦Àí£¬µ«´æÏÂÀ´µÄÍ¼ÏñÁÁ¶ÈÖµÊÇ¾­¹ı·Å´ó£¬²¢·ÇÔ­Ê¼Êı¾İ£» \n
+#  			µ±dstImgÎª¿ÕÊ±£¬¿É»ñÈ¡Ä¿±êÍ¼ÏñÊı¾İ´óĞ¡£¬¿É¸ù¾İµÃµ½µÄdstImgSizeÔ¤ÏÈ·ÖÅädstImgÄÚ´æ£¬È»ºóÔÙ´«ÈëdstImgÖ¸Õë½øĞĞ»ñÈ¡Ä¿±êÍ¼ÏñÊı¾İ¡£
+#  		×¢Òâ£¬´Ë´¦ÎŞÂÛÊÇRGB»¹ÊÇBGRµÄ²ÊÉ«Í¼¾ù×ªÎªRGBÅÅÁĞ£¬¿ÉÄÜ´æÔÚÓĞBºÍRÍ¨µÀÏà·´µÄÏÖÏó£¬Ê¹ÓÃ @ref SciCam_Payload_ConvertImage "SciCam_Payload_ConvertImage"½Ó¿Ú¿É½â¾ö´ËÎÊÌâ£»
 #  @~english
 #  @brief Image Pixel Format Conversion
 #  @param imgAttr		[IN]      Source Image Property Information, references: @ref PSCI_CAM_IMAGE_ATTRIBUTE "PSCI_CAM_IMAGE_ATTRIBUTE"
@@ -1284,20 +1185,20 @@ def SciCam_Payload_ConvertImage(imgAttr, srcImg, outType, dstImg, dstImgSize, zo
 
 ## @ingroup module_PayloadParsingInterface_Convert
 #  @~chinese
-#  @brief å›¾åƒåƒç´ æ ¼å¼è½¬æ¢æ‰©å±•æ¥å£
-#  @param imgAttr		[IN]      æºå›¾åƒå±æ€§ä¿¡æ¯ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref PSCI_CAM_IMAGE_ATTRIBUTE "PSCI_CAM_IMAGE_ATTRIBUTE"
-#  @param srcImg		[IN]      æŒ‡å‘æºå›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @param outType		[IN]      ç›®æ ‡å›¾åƒåƒç´ ç±»å‹ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref SciCamPixelType "SciCamPixelType"
-#  @param dstImg		[IN][OUT] æŒ‡å‘ç›®æ ‡å›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @param dstImgSize	[IN][OUT] ç›®æ ‡å›¾åƒæ•°æ®å¤§å°
-#  @param zoom			[IN]      æ˜¯å¦åƒç´ ç¼©æ”¾
-#  @param algorithmType	[IN]      ç®—æ³•ç±»å‹å‚æ•°ï¼›å½“bayerç±»å‹è½¬rgbç±»å‹æ—¶æ’å€¼æ–¹å¼ï¼š0è¡¨ç¤ºå¿«é€Ÿï¼Œ1è¡¨ç¤ºå‡è¡¡ï¼Œ2è¡¨ç¤ºæœ€ä¼˜
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
-#  @remarks outTypeå¯ä»¥è®¾ç½®ä¸ºPixelTypeUnknownï¼Œæ­¤æ—¶é»˜è®¤æ ¹æ®æºæ ¼å¼è¿›è¡Œè½¬æ¢ï¼› \n
-#  			zoomå‚æ•°ä¸ºå½“å›¾åƒæ·±åº¦ä½æ•°ä¸ç›¸åŒäº’è½¬æ—¶æœ‰æ•ˆã€‚zoomä¸ºfalseæ—¶è¡¨ç¤ºä¸åšåƒç´ ç¼©æ”¾å¤„ç†ï¼Œä¸ºtrueæ—¶åˆ™åƒç´ ç¼©æ”¾å¤„ç†ï¼Œä½†å­˜ä¸‹æ¥çš„å›¾åƒäº®åº¦å€¼æ˜¯ç»è¿‡æ”¾å¤§ï¼Œå¹¶éåŸå§‹æ•°æ®ï¼› \n
-#  			å½“dstImgä¸ºç©ºæ—¶ï¼Œå¯è·å–ç›®æ ‡å›¾åƒæ•°æ®å¤§å°ï¼Œå¯æ ¹æ®å¾—åˆ°çš„dstImgSizeé¢„å…ˆåˆ†é…dstImgå†…å­˜ï¼Œç„¶åå†ä¼ å…¥dstImgæŒ‡é’ˆè¿›è¡Œè·å–ç›®æ ‡å›¾åƒæ•°æ®ã€‚
-#  		algorithmTypeé»˜è®¤ä¸º0ï¼Œå¦‚éœ€é«˜è´¨é‡çš„å›¾åƒè½¬æ¢ï¼Œè¯·é€‰æ‹©â€œ2(æœ€ä¼˜)â€ï¼Œè¯·æ³¨æ„æ­¤å¤„â€œ0(å¿«é€Ÿ)â€è€—æ—¶æœ€çŸ­ï¼Œâ€œ2(æœ€ä¼˜)â€è€—æ—¶æœ€é•¿ã€‚
+#  @brief Í¼ÏñÏñËØ¸ñÊ½×ª»»À©Õ¹½Ó¿Ú
+#  @param imgAttr		[IN]      Ô´Í¼ÏñÊôĞÔĞÅÏ¢£¬ÏêÏ¸²Î¿¼£º @ref PSCI_CAM_IMAGE_ATTRIBUTE "PSCI_CAM_IMAGE_ATTRIBUTE"
+#  @param srcImg		[IN]      Ö¸ÏòÔ´Í¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @param outType		[IN]      Ä¿±êÍ¼ÏñÏñËØÀàĞÍ£¬ÏêÏ¸²Î¿¼£º @ref SciCamPixelType "SciCamPixelType"
+#  @param dstImg		[IN][OUT] Ö¸ÏòÄ¿±êÍ¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @param dstImgSize	[IN][OUT] Ä¿±êÍ¼ÏñÊı¾İ´óĞ¡
+#  @param zoom			[IN]      ÊÇ·ñÏñËØËõ·Å
+#  @param algorithmType	[IN]      Ëã·¨ÀàĞÍ²ÎÊı£»µ±bayerÀàĞÍ×ªrgbÀàĞÍÊ±²åÖµ·½Ê½£º0±íÊ¾¿ìËÙ£¬1±íÊ¾¾ùºâ£¬2±íÊ¾×îÓÅ
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
+#  @remarks outType¿ÉÒÔÉèÖÃÎªPixelTypeUnknown£¬´ËÊ±Ä¬ÈÏ¸ù¾İÔ´¸ñÊ½½øĞĞ×ª»»£» \n
+#  			zoom²ÎÊıÎªµ±Í¼ÏñÉî¶ÈÎ»Êı²»ÏàÍ¬»¥×ªÊ±ÓĞĞ§¡£zoomÎªfalseÊ±±íÊ¾²»×öÏñËØËõ·Å´¦Àí£¬ÎªtrueÊ±ÔòÏñËØËõ·Å´¦Àí£¬µ«´æÏÂÀ´µÄÍ¼ÏñÁÁ¶ÈÖµÊÇ¾­¹ı·Å´ó£¬²¢·ÇÔ­Ê¼Êı¾İ£» \n
+#  			µ±dstImgÎª¿ÕÊ±£¬¿É»ñÈ¡Ä¿±êÍ¼ÏñÊı¾İ´óĞ¡£¬¿É¸ù¾İµÃµ½µÄdstImgSizeÔ¤ÏÈ·ÖÅädstImgÄÚ´æ£¬È»ºóÔÙ´«ÈëdstImgÖ¸Õë½øĞĞ»ñÈ¡Ä¿±êÍ¼ÏñÊı¾İ¡£
+#  		algorithmTypeÄ¬ÈÏÎª0£¬ÈçĞè¸ßÖÊÁ¿µÄÍ¼Ïñ×ª»»£¬ÇëÑ¡Ôñ¡°2(×îÓÅ)¡±£¬Çë×¢Òâ´Ë´¦¡°0(¿ìËÙ)¡±ºÄÊ±×î¶Ì£¬¡°2(×îÓÅ)¡±ºÄÊ±×î³¤¡£
 #  @~english
 #  @brief Image pixel format conversion extension interface
 #  @param imgAttr		[IN]      Source Image Property Information, references: @ref PSCI_CAM_IMAGE_ATTRIBUTE "PSCI_CAM_IMAGE_ATTRIBUTE"
@@ -1322,15 +1223,15 @@ def SciCam_Payload_ConvertImageEx(imgAttr, srcImg, outType, dstImg, dstImgSize, 
 
 ## @ingroup module_PayloadParsingInterface_Convert
 #  @~chinese
-#  @brief ä¿å­˜å›¾åƒåˆ°æœ¬åœ°ç¡¬ç›˜
-#  @param filePath		[IN]  æ–‡ä»¶è·¯å¾„ï¼Œå¦‚ï¼š"D:\img.png"
-#  @param pixelType		[IN]  å›¾åƒåƒç´ ç±»å‹ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref SciCamPixelType "SciCamPixelType"
-#  @param img			[IN]  æŒ‡å‘å›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @param width			[IN]  å›¾åƒçš„å®½åº¦
-#  @param height		[IN]  å›¾åƒçš„é«˜åº¦
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
-#  @remarks zoomå‚æ•°ä¸ºå½“å›¾åƒæ·±åº¦ä½æ•°ä¸ç›¸åŒäº’è½¬æ—¶æœ‰æ•ˆã€‚zoomä¸ºfalseæ—¶è¡¨ç¤ºä¸åšåƒç´ ç¼©æ”¾å¤„ç†ï¼Œä¸ºtrueæ—¶åˆ™åƒç´ ç¼©æ”¾å¤„ç†ï¼Œä½†å­˜ä¸‹æ¥çš„å›¾åƒäº®åº¦å€¼æ˜¯ç»è¿‡æ”¾å¤§ï¼Œå¹¶éåŸå§‹æ•°æ®ï¼›
+#  @brief ±£´æÍ¼Ïñµ½±¾µØÓ²ÅÌ
+#  @param filePath		[IN]  ÎÄ¼şÂ·¾¶£¬Èç£º"D:\img.png"
+#  @param pixelType		[IN]  Í¼ÏñÏñËØÀàĞÍ£¬ÏêÏ¸²Î¿¼£º @ref SciCamPixelType "SciCamPixelType"
+#  @param img			[IN]  Ö¸ÏòÍ¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @param width			[IN]  Í¼ÏñµÄ¿í¶È
+#  @param height		[IN]  Í¼ÏñµÄ¸ß¶È
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
+#  @remarks zoom²ÎÊıÎªµ±Í¼ÏñÉî¶ÈÎ»Êı²»ÏàÍ¬»¥×ªÊ±ÓĞĞ§¡£zoomÎªfalseÊ±±íÊ¾²»×öÏñËØËõ·Å´¦Àí£¬ÎªtrueÊ±ÔòÏñËØËõ·Å´¦Àí£¬µ«´æÏÂÀ´µÄÍ¼ÏñÁÁ¶ÈÖµÊÇ¾­¹ı·Å´ó£¬²¢·ÇÔ­Ê¼Êı¾İ£»
 #  @~english
 #  @brief Save the image to the local hard disk.
 #  @param filePath		[IN]  File path, for example: "D:\img.png"
@@ -1349,11 +1250,11 @@ def SciCam_Payload_SaveImage(filePath, pixelType, img, width, height):
 
 ## @ingroup module_PayloadParsingInterface_LP3D
 #  @~chinese
-#  @brief ä»payloadæ•°æ®ä¸­è·å–å…ƒæ•°æ®ï¼ˆLP3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pMeta			[OUT] è·å–åˆ°çš„å…ƒæ•°æ®ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref PSCI_CAM_LP3D_META "PSCI_CAM_LP3D_META"
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief ´ÓpayloadÊı¾İÖĞ»ñÈ¡ÔªÊı¾İ£¨LP3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pMeta			[OUT] »ñÈ¡µ½µÄÔªÊı¾İ£¬ÏêÏ¸²Î¿¼£º @ref PSCI_CAM_LP3D_META "PSCI_CAM_LP3D_META"
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Extract metadata from payload Data(LP3D)
@@ -1369,12 +1270,12 @@ def SciCam_Payload_LP3D_GetMeta(payload, pMeta):
 
 ## @ingroup module_PayloadParsingInterface_LP3D
 #  @~chinese
-#  @brief ä»payloadæ•°æ®ä¸­è·å–å›¾åƒæ•°æ®ï¼ˆLP3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pImage		[OUT] è·å–åˆ°æŒ‡å‘å›¾åƒæ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
-#  @remarks pImageçš„å†…å­˜ç”±SDKåˆ†é…ï¼Œéšpayloadç”Ÿå‘½å‘¨æœŸç»“æŸè€Œé‡Šæ”¾
+#  @brief ´ÓpayloadÊı¾İÖĞ»ñÈ¡Í¼ÏñÊı¾İ£¨LP3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pImage		[OUT] »ñÈ¡µ½Ö¸ÏòÍ¼ÏñÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
+#  @remarks pImageµÄÄÚ´æÓÉSDK·ÖÅä£¬ËæpayloadÉúÃüÖÜÆÚ½áÊø¶øÊÍ·Å
 #  @~english
 #  @brief Extract image data from payload(LP3D)
 #  @param payload		[IN]  Pointer to the head of payload data
@@ -1389,11 +1290,11 @@ def SciCam_Payload_LP3D_GetImage(payload, pImage):
 
 ## @ingroup module_PayloadParsingInterface_LP3D
 #  @~chinese
-#  @brief ä»payloadæ•°æ®ä¸­è·å–è½®å»“ç‚¹æ•°ï¼ˆLP3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pointCounts	[OUT] è·å–åˆ°çš„è½®å»“ç‚¹æ•°
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief ´ÓpayloadÊı¾İÖĞ»ñÈ¡ÂÖÀªµãÊı£¨LP3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pointCounts	[OUT] »ñÈ¡µ½µÄÂÖÀªµãÊı
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Extract contour point count from payload data(LP3D)
@@ -1409,13 +1310,13 @@ def SciCam_Payload_LP3D_GetPointCounts(payload, pointCounts):
 
 ## @ingroup module_PayloadParsingInterface_LP3D
 #  @~chinese
-#  @brief ä»payloadæ•°æ®ä¸­è·å–è½®å»“ï¼ˆLP3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param dataType		[IN]  æŒ‡å®šè½®å»“æ•°æ®ç±»å‹ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref SciCamPayloadDataType "SciCamPayloadDataType"
-#  @param pContour		[OUT] æŒ‡å‘è½®å»“æ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @param invalidValue	[IN]  è®¾å®šæ— æ•ˆç‚¹çš„å€¼
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief ´ÓpayloadÊı¾İÖĞ»ñÈ¡ÂÖÀª£¨LP3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param dataType		[IN]  Ö¸¶¨ÂÖÀªÊı¾İÀàĞÍ£¬ÏêÏ¸²Î¿¼£º @ref SciCamPayloadDataType "SciCamPayloadDataType"
+#  @param pContour		[OUT] Ö¸ÏòÂÖÀªÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @param invalidValue	[IN]  Éè¶¨ÎŞĞ§µãµÄÖµ
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Retrieve contours from payload data(LP3D)
@@ -1433,11 +1334,11 @@ def SciCam_Payload_LP3D_GetContour(payload, dataType, pContour, invalidValue):
 
 ## @ingroup module_PayloadParsingInterface_LP3D
 #  @~chinese
-#  @brief ä»payloadæ•°æ®ä¸­ç°åº¦å€¼æ•°æ®ï¼ˆLP3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pGray			[OUT] è·å–åˆ°æŒ‡å‘ç°åº¦å€¼æ•°æ®å†…å­˜å¤´æŒ‡é’ˆ
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief ´ÓpayloadÊı¾İÖĞ»Ò¶ÈÖµÊı¾İ£¨LP3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pGray			[OUT] »ñÈ¡µ½Ö¸Ïò»Ò¶ÈÖµÊı¾İÄÚ´æÍ·Ö¸Õë
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Extract grayscale value data from payload(LP3D)
@@ -1453,11 +1354,11 @@ def SciCam_Payload_LP3D_GetGray(payload, pGray):
 
 ## @ingroup module_PayloadParsingInterface_SL3D
 #  @~chinese
-#  @brief ä»payloadæ•°æ®ä¸­è·å–å…ƒæ•°æ®ï¼ˆSL3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param pMeta			[OUT] è·å–åˆ°çš„å…ƒæ•°æ®ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref PSCI_CAM_SL3D_META "PSCI_CAM_SL3D_META"
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
+#  @brief ´ÓpayloadÊı¾İÖĞ»ñÈ¡ÔªÊı¾İ£¨SL3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param pMeta			[OUT] »ñÈ¡µ½µÄÔªÊı¾İ£¬ÏêÏ¸²Î¿¼£º @ref PSCI_CAM_SL3D_META "PSCI_CAM_SL3D_META"
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
 #  @remarks NULL
 #  @~english
 #  @brief Extract metadata from payload Data(SL3D)
@@ -1473,13 +1374,13 @@ def SciCam_Payload_SL3D_GetMeta(payload, pMeta):
 
 ## @ingroup module_PayloadParsingInterface_SL3D
 #  @~chinese
-#  @brief ä»payloadä¸­è·å–ç›®æ ‡æ•°æ®ï¼ˆSL3Dï¼‰
-#  @param payload		[IN]  æŒ‡å‘payloadæ•°æ®å¤´æŒ‡é’ˆ
-#  @param tgDataType	[IN]  ç›®æ ‡æ•°æ®ç±»å‹ï¼Œè¯¦ç»†å‚è€ƒï¼š @ref SciCamPayloadSL3DTargetDataType "SciCamPayloadSL3DTargetDataType"
-#  @param pData			[OUT] ç›®æ ‡æ•°æ® 
-#  @retval æˆåŠŸï¼š @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
-#  @retval å…¶ä»–å‚è§: @ref SciCamErrorDefine.h "çŠ¶æ€ç "
-#  @remarks @ref PSCI_CAM_SL3D_DATA "PSCI_CAM_SL3D_DATA" pDataä¸­çš„dataä¸ºæµ…æ‹·è´ï¼Œéšpayloadç”Ÿå‘½å‘¨æœŸç»“æŸè‡ªåŠ¨é‡Šæ”¾ã€‚
+#  @brief ´ÓpayloadÖĞ»ñÈ¡Ä¿±êÊı¾İ£¨SL3D£©
+#  @param payload		[IN]  Ö¸ÏòpayloadÊı¾İÍ·Ö¸Õë
+#  @param tgDataType	[IN]  Ä¿±êÊı¾İÀàĞÍ£¬ÏêÏ¸²Î¿¼£º @ref SciCamPayloadSL3DTargetDataType "SciCamPayloadSL3DTargetDataType"
+#  @param pData			[OUT] Ä¿±êÊı¾İ 
+#  @retval ³É¹¦£º @ref SCI_CAMERA_OK "SCI_CAMERA_OK"(0)
+#  @retval ÆäËû²Î¼û: @ref SciCamErrorDefine.h "×´Ì¬Âë"
+#  @remarks @ref PSCI_CAM_SL3D_DATA "PSCI_CAM_SL3D_DATA" pDataÖĞµÄdataÎªÇ³¿½±´£¬ËæpayloadÉúÃüÖÜÆÚ½áÊø×Ô¶¯ÊÍ·Å¡£
 #  @~english
 #  @brief Extract metadata from payload Data(SL3D)
 #  @param payload		[IN]  Pointer to the head of payload data

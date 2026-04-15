@@ -2,7 +2,8 @@ import sys
 import os
 
 # ---- Configuração de libs nativas (deve rodar ANTES de qualquer import ctypes) ----
-_libs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libs')
+_platform_dir = 'windows' if sys.platform == 'win32' else 'linux'
+_libs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libs', _platform_dir)
 if os.path.isdir(_libs_dir):
     if sys.platform == 'win32':
         os.add_dll_directory(_libs_dir)

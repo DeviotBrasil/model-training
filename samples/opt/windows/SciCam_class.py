@@ -1,4 +1,3 @@
-# -*- coding: latin-1 -*-
 from SciCamErrorDefine_const import *
 from SciCamPayload_header import *
 from SciCamInfo_header import *

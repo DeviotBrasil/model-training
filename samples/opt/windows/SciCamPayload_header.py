@@ -1,4 +1,3 @@
-# -*- coding: latin-1 -*-
 import ctypes
 import enum
 import platform
@@ -53,9 +52,6 @@ else:
 	# Linux
 	current_directory = os.path.dirname(os.path.abspath(__file__))
 	lib_path = os.path.join(current_directory, 'libSciCamSDK.so')
-	if not os.path.exists(lib_path):
-		# Fallback: pasta libs/ na raiz do projeto
-		lib_path = os.path.join(current_directory, '..', 'libs', 'libSciCamSDK.so')
 	try:
 		SciCamCtrlDll = ctypes.CDLL(lib_path)
 	except OSError as e:

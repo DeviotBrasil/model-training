@@ -1,4 +1,3 @@
-# -*- coding: latin-1 -*-
 import sys
 import os
 import socket
@@ -284,8 +283,8 @@ def payloadCallbackFunc(ppayload, tag):
 		print('Get payload meta failed, return error number: %d' %reVal)
 		return
 	print('FrameID: %d, Index: %d, IsFinish: %s' %(payloadMeta.frameId, payloadMeta.index, "true" if payloadMeta.finished else "false"))
-	# Ô­ï¿½ï¿½ï¿½Ï´Ë´ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Èµï¿½ï¿½ï¿½SciCam_Payload_LP3D_GetPointCountsï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Õ¼ä£¬
-	# ï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½SciCam_Payload_LP3D_GetContourï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´æ¿½ï¿½ï¿½ï¿½ï¿½
+	# Ô­ÔòÉÏ´Ë´¦ÊÇÐèÒªÏÈµ÷ÓÃSciCam_Payload_LP3D_GetPointCounts£¬»ñÈ¡ÅúÂÖÀªµãÊý£¬¸ù¾ÝµãÊý·ÖÅäÄÚ´æ¿Õ¼ä£¬
+	# ½Ó×Åµ÷ÓÃSciCam_Payload_LP3D_GetContour½øÐÐÒ»ÅúÂÖÀªµÄÄÚ´æ¿½±´£»
 
 	invalid_value = ctypes.c_void_p(0)
 	buffer = ctypes.create_string_buffer(m_buffer_size)
@@ -297,7 +296,7 @@ def payloadCallbackFunc(ppayload, tag):
 	ctypes.memmove(ctypes.addressof(m_rangeImageData) + offset, buffer, m_buffer_size)
 	
 	if payloadMeta.finished:
-		# ï¿½ï¿½Ê±ï¿½ÜµÃµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó°ï¿½m_rangeImageDataï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½
+		# ´ËÊ±ÄÜµÃµ½ÍêÕûµÄÂÖÀªÊý¾Ý£¬¿ÉÒÔÖ±½Ó°Ñm_rangeImageData¿½±´½øÐÐÊ¹ÓÃ
 		pass
 	
 
@@ -368,22 +367,22 @@ def getDeviceNodes():
 	m_Scaler = SCI_NODE_VAL_INT()
 
 	nodeName = 'ZUpSizeInfo'
-	reVal = m_currentCam.SciCam_GetFloatValueEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,nodeName, m_ZMin)
+	reVal = m_currentCam.SciCam_GetFloatValue(nodeName, m_ZMin)
 	if reVal != SCI_CAMERA_OK:
 		print('Get node value: %s failed, return error number: %u' %(nodeName, reVal))
 		return reVal
 	nodeName = 'ZDownSizeInfo'
-	reVal = m_currentCam.SciCam_GetFloatValueEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,nodeName, m_ZMax)
+	reVal = m_currentCam.SciCam_GetFloatValue(nodeName, m_ZMax)
 	if reVal != SCI_CAMERA_OK:
 		print('Get node value: %s failed, return error number: %u' %(nodeName, reVal))
 		return reVal
 	nodeName = 'XSizeInfo'
-	reVal = m_currentCam.SciCam_GetFloatValueEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,nodeName, m_XSizeInfo)
+	reVal = m_currentCam.SciCam_GetFloatValue(nodeName, m_XSizeInfo)
 	if reVal != SCI_CAMERA_OK:
 		print('Get node value: %s failed, return error number: %u' %(nodeName, reVal))
 		return reVal
 	nodeName = 'Scaler'
-	reVal = m_currentCam.SciCam_GetIntValueEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,nodeName, m_Scaler)
+	reVal = m_currentCam.SciCam_GetIntValue(nodeName, m_Scaler)
 	if reVal != SCI_CAMERA_OK:
 		print('Get node value: %s failed, return error number: %u' %(nodeName, reVal))
 		return reVal
@@ -394,39 +393,39 @@ def getDeviceNodes():
 
 def setParameter():
 	global m_DataType
-	# ï¿½ï¿½ï¿½Ã²É¼ï¿½Ä£Ê½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	# ÉèÖÃ²É¼¯Ä£Ê½ÎªÅúÁ¿ÂÖÀª
 	reVal = m_currentCam.SciCam_LP3D_SetGrabType(SciCamLp3dGrabMode.SciCam_GrabMode_LP3D_BatchContour)
 	if reVal != SCI_CAMERA_OK:
 		print('Set grab type failed, return error number: %u' %reVal)
 		return reVal
 	else:
 		print('Set grab type success.')
-	# ï¿½ï¿½ï¿½Ã²É¼ï¿½ï¿½ï¿½Ê±
+	# ÉèÖÃ²É¼¯³¬Ê±
 	reVal = m_currentCam.SciCam_SetGrabTimeout(m_Timeout)
 	if reVal != SCI_CAMERA_OK:
 		print('Set grab timeout failed, return error number: %u' %reVal)
 		return reVal
 	else:
 		print('Set grab timeout success.')
-	# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	reVal = m_currentCam.SciCam_SetIntValueEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,'BatchNumber', m_BatchNumber)
+	# ÉèÖÃÅú´¦ÀíÁ¿
+	reVal = m_currentCam.SciCam_SetIntValue('BatchNumber', m_BatchNumber)
 	if reVal != SCI_CAMERA_OK:
 		print('Set batch number failed, return error number: %u' %reVal)
 		return reVal
 	else:
 		print('Set batch number success.')
-	# ï¿½ï¿½ï¿½ï¿½ï¿½Ü²É¼ï¿½ï¿½ï¿½ï¿½ï¿½
-	reVal = m_currentCam.SciCam_SetIntValueEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,'AcquisitionLineCount', m_LineCount)
+	# ÉèÖÃ×Ü²É¼¯ÐÐÊý
+	reVal = m_currentCam.SciCam_SetIntValue('AcquisitionLineCount', m_LineCount)
 	if reVal != SCI_CAMERA_OK:
 		print('Set acquisition line count failed, return error number: %u' %reVal)
 		return reVal
 	else:
 		print('Set acquisition line count success.')
-	# ï¿½ï¿½ï¿½Ã²É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½è±¸ï¿½ï¿½Ö§ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	# ÉèÖÃ²É¼¯µÄÂÖÀªÊý¾ÝÎ»Êý£¬ÈçÉèÖÃÊ§°ÜÔò´ú±í¸Ã¼¤¹âÉè±¸²»Ö§³Ö¸ÃÊý¾ÝÀàÐÍÉèÖÃ
 	if m_DataType == SciCamPayloadDataType.SciCam_Payload_DataType_USHORT:
-		reVal = m_currentCam.SciCam_SetEnumValueByStringEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,'DepthDataType', 'Uint16_t')
+		reVal = m_currentCam.SciCam_SetEnumValueByString('DepthDataType', 'Uint16_t')
 	elif m_DataType == SciCamPayloadDataType.SciCam_Payload_DataType_INT:
-		reVal = m_currentCam.SciCam_SetEnumValueByStringEx(SciCamDeviceXmlType.SciCam_DeviceXml_Camera,'DepthDataType', 'Uint32_t')
+		reVal = m_currentCam.SciCam_SetEnumValueByString('DepthDataType', 'Uint32_t')
 		
 	if reVal != SCI_CAMERA_OK:
 		m_DataType = SciCamPayloadDataType.SciCam_Payload_DataType_INT
@@ -461,9 +460,9 @@ def main():
 	
 	# ---------------------------------------------------------------------------------------
 
-	m_LineCount = 1000      # ï¿½Ü²É¼ï¿½ï¿½ï¿½ï¿½ï¿½
-	m_BatchNumber = 100     # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	m_Timeout = 5000        # ï¿½É¼ï¿½ï¿½ï¿½Ê±
+	m_LineCount = 1000      # ×Ü²É¼¯ÐÐÊý
+	m_BatchNumber = 100     # Åú´¦ÀíÁ¿
+	m_Timeout = 5000        # ²É¼¯³¬Ê±
 
 	m_DataType = SciCamPayloadDataType.SciCam_Payload_DataType_INT
 	m_invalidValue = float('-inf')
