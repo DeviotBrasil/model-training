@@ -26,6 +26,8 @@ if os.path.isdir(_libs_dir):
         os.environ['LD_LIBRARY_PATH'] = _libs_dir + ':' + os.environ.get('LD_LIBRARY_PATH', '')
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
+import signal
+
 from app.infrastructure.logging.log_setup import setup_logging
 log = setup_logging()
 
@@ -35,6 +37,13 @@ from app.presentation.main_window import MainWindow
 if __name__ == "__main__":
     log.info('=== Iniciando aplicação ===')
     app = QApplication(sys.argv)
+
+    # Ignora SIGINT para evitar KeyboardInterrupt dentro de slots Qt.
+    # O debugpy envia SIGINT durante a inicialização do debug session no VS Code,
+    # o que sem esse handler causaria encerramento inesperado do app.
+    # O fechamento correto é feito pelo closeEvent da janela principal.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     window = MainWindow()
     window.setMinimumSize(800, 600)
     window.show()
